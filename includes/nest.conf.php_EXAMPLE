@@ -1,0 +1,9 @@
+<?php
+
+// Configure these settings for your site
+define('BRAND_URL', 'http://some.site.here.com');
+define('BRAND_NAME', 'Your Awesome Site Name');
+
+// User and pass configuration
+define('USERNAME', 'your_user');
+define('PASSWORD', 'your_pass');
