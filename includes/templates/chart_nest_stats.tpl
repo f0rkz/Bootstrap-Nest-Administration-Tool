@@ -1,11 +1,16 @@
-<div class="container" id="chart"></div>
+<div class="container" id="chart_nest_stats"></div>
 <script>
 $(function () { 
-    $('#chart').highcharts('StockChart', {
-        chart: {
+    Highcharts.setOptions({
+        global: {
+            timezoneOffset: <?= $date_offset; ?> * 60
+        }
+    });
+    $('#chart_nest_stats').highcharts('StockChart', {
+        chart_nest_stats: {
             type: 'line',
             zoomType: 'xy',
-            renderTo: chart
+            renderTo: chart_nest_stats
         },
         title: {
             text: 'Nest Temperature Statistics'
@@ -68,14 +73,20 @@ $(function () {
         },
 
         series: [{
-            name: 'Temperature',
+            name: 'Inside Temperature',
             data: [<?php echo join($data_temp, ','); ?>]
         }, {
-            name: 'Humidity',
+            name: 'Outside Temperature',
+            data: [<?php echo join($data_outside_temp, ','); ?>]
+        }, {
+            name: 'Thermostat Setpoint',
+            data: [<?php echo join($data_setpoint, ','); ?>]
+        }, {
+            name: 'Inside Humidity',
             data: [<?php echo join($data_humidity, ','); ?>]
         }, {
-        	name: 'Setpoint',
-        	data: [<?php echo join($data_setpoint, ','); ?>]
+        	name: 'Outside Humidity',
+        	data: [<?php echo join($data_outside_humidity, ','); ?>]
         }],
         legend: {
 			enabled: true,

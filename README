@@ -1,4 +1,8 @@
 INSTALL INSTRUCTIONS
 
+-Set up database
+-Set up vhost with documentroot pointing to ./web/ directory
+-- /home/user/nest.domainname.com/web/
+
 Required php packages
 php5-json

@@ -1,1 +1,0 @@
-<iframe src="/nestgraph/index.html" frameborder=0 height=500 width=900></iframe>

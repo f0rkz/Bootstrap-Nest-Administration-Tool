@@ -10,7 +10,7 @@
         </div>
         <div class="navbar-collapse collapse navbar-inverse-collapse">
           <ul class="nav navbar-nav">
-            <li><a href="#">Some stuff</a></li>
+            <li><a href="/?page=graphs">Graphs</a></li>
             <li><a href="#">Some more stuff</a></li>
             <li><a href="#">Even more stuff</a></li>
           </ul>
