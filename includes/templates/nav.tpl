@@ -16,7 +16,7 @@
           </ul>
 
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="#">Stuff here</a></li>
+            <li><a href="/?logout">Logout</a></li>
           </ul>
         </div>
       </div>
