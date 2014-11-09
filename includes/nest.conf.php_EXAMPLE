@@ -4,10 +4,6 @@
 define('BRAND_URL', 'http://some.site.here.com');
 define('BRAND_NAME', 'Your Awesome Site Name');
 
-// Nest User and pass configuration
-define('USERNAME', 'your_user');
-define('PASSWORD', 'your_pass');
-
 // Database configuration
 define('DB_HOST', 'localhost');
 define('DB_USER', 'someuser');
@@ -16,3 +12,8 @@ define('DB_NAME', 'somedatabase');
 
 // Location configuration
 define('ZIP_CODE', 'your_zip_here');
+
+// Key for nest password. Since nest does not use API keys per thermostat (yet),
+// we want to encrypt the database contents for safety.
+// Set something random here. You should change this.
+define("ENCRYPTION_KEY", "4jiadg892kwentj923");

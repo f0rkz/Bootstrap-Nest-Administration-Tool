@@ -3,6 +3,7 @@
 include('../classes/nest.php');
 include('../nest.conf.php');
 include('../functions/convertKelvin.php');
+include('../functions/encrypt_decrypt.php');
 
 $db_connect = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
@@ -13,6 +14,13 @@ while ( $row = mysqli_fetch_array($get_users))
 {
 	$user_id = $row['user_id'];
 	$user_zip = $row['user_zip'];
+	$nest_username = $row['nest_username'];
+	$nest_password = $row['nest_password'];
+	$nest_password_decrypt = decrypt($nest_password, ENCRYPTION_KEY);
+
+	// User and pass configuration
+	define('USERNAME', $nest_username);
+	define('PASSWORD', $nest_password_decrypt);
 
 	// Open weathermap api call
 	$weather_json = "http://api.openweathermap.org/data/2.5/weather?q=" . $user_zip;

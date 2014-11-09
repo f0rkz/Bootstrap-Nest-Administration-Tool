@@ -13,6 +13,7 @@ include('../includes/common.php');
 
 // Figure out what page to render
 $request = $_GET;
+$input = $_POST;
 
 $nav_brand_url = BRAND_URL;
 $nav_brand_name = BRAND_NAME;
@@ -36,14 +37,20 @@ if ($login->isUserLoggedIn() == false)
 	    	{
         		foreach ($registration->errors as $error) 
         		{
-	        	    echo $error;
+	        	    $tpl_error = new Template("../includes/templates/error.tpl");
+        			$tpl_error->set("error_text", $error);
+	        	    echo $tpl_error->fetch("../includes/templates/error.tpl");
         		}
     		}
     		if ($registration->messages) 
     		{
 	        	foreach ($registration->messages as $message) 
 	        	{
-            	echo $message;
+	        		$success_message = $message . " <a href=\"/\">Back to home</a>";
+        			$tpl_success = new Template("../includes/templates/success.tpl");
+        			$tpl_success->set("success_text", $success_message);
+	        	    echo $tpl_success->fetch("../includes/templates/success.tpl");
+	        	    header("refresh:5; url=/index.php"); 
         		}
     		}
 		}
@@ -64,15 +71,9 @@ if ($login->isUserLoggedIn() == false)
 			{
 		   		foreach ($login->errors as $error) 
 		   		{
-   	    			echo $error;
-				}
-			}
-			if ($login->messages) 
-			{
-       			foreach ($login->messages as $message) 
-       			{
-					echo $message;
-       			}
+	        	    $tpl_error = new Template("../includes/templates/error.tpl");
+        			$tpl_error->set("error_text", $error);
+	        	    echo $tpl_error->fetch("../includes/templates/error.tpl");				}
 			}
 		}
 		$tpl_head = new Template("../includes/templates/head-login.tpl");
@@ -99,16 +100,56 @@ if ($login->isUserLoggedIn() == true)
 
 	if ($request == null)
 	{
+		/*
+		// Query database for collected data
+		*/
+		$db_connect = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+
+		$user_id_query = "select user_id from users where user_name = \"$username\"";
+		$get_user_id = mysqli_query($db_connect, $user_id_query);
+		while ( $user_row = mysqli_fetch_array($get_user_id))
+		{
+			$user_id = $user_row['user_id'];
+		}
+
+		$query = "select * from data where user_id = \"$user_id\" ORDER BY timestamp";
+
+		$result = mysqli_query($db_connect, $query);
+		if (mysqli_connect_errno())
+		{
+	        echo "Failed to connect to MySQL: " . mysqli_connect_error();
+		}
+		while ($row = mysqli_fetch_array($result))
+		{
+			$timestamp = $row['timestamp'];
+			$timestamp_offset = $row['timestamp_offset'];
+			$heating = $row['heating'];
+			$cooling = $row['cooling'];
+			$setpoint = $row['target'];
+			$temp = $row['current'];
+			$humidity = $row['humidity'];
+			$outside_temp = $row['outside_temp'];
+			$outside_humidity = $row['outside_humidity'];
+			
+		}
+
 		$tpl_head = new Template("../includes/templates/head.tpl");
 		$tpl_nav = new Template("../includes/templates/nav.tpl");
 		$tpl_foot = new Template("../includes/templates/foot.tpl");
+
+		$tpl_stats = new Template("../includes/templates/col-md-12-container.tpl");
 
 		$tpl_head->set('title', "Nest Administration Tool");
 		$tpl_nav->set('nav_brand_url', $nav_brand_url);
 		$tpl_nav->set('nav_brand_name', $nav_brand_name);
 
+		$tpl_stats->set('container_header', "Nest Statistics");
+		$tpl_stats->set('body_elements', "Stats");
+
 		echo $tpl_head->fetch('../includes/templates/head.tpl');
 		echo $tpl_nav->fetch('../includes/templates/nav.tpl');
+
+		echo $tpl_stats->fetch('../includes/templates/col-md-12-container.tpl');
 		echo $tpl_foot->fetch('../includes/templates/foot.tpl');
 	}
 	if ($request['page'] == 'graphs' )
@@ -185,6 +226,38 @@ if ($login->isUserLoggedIn() == true)
 	}
 	if ($request['page'] == 'profile')
 	{
+
+		// Get the user's information
+		$db_connect = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+		$user_id_query = "select user_id, nest_username, user_zip from users where user_name = \"$username\"";
+		$get_user_id = mysqli_query($db_connect, $user_id_query);
+		while ( $user_row = mysqli_fetch_array($get_user_id))
+		{
+			$user_id = $user_row['user_id'];
+			$user_zip = $user_row['user_zip'];
+			$nest_username = $user_row['nest_username'];
+		}
+		if ($request['postsettings'] == 'update')
+		{
+			$nest_username = $input['nest']['username'];
+			$nest_password = $input['nest']['password'];
+			$nest_zipcode = $input['nest']['location'];
+
+			$nest_password_encrypt = encrypt($nest_password, ENCRYPTION_KEY);
+
+			$fields = "nest_username=\"$nest_username\", nest_password=\"$nest_password_encrypt\", user_zip=\"$nest_zipcode\"";
+			$server_sql = "UPDATE users SET $fields WHERE user_id = $user_id";
+			mysqli_query($db_connect, $server_sql);
+
+			$user_zip = $nest_zipcode;
+
+       		$success_message = $message . "Updated user preferences";
+   			$tpl_success = new Template("../includes/templates/success.tpl");
+   			$tpl_success->set("success_text", $success_message);
+       	    echo $tpl_success->fetch("../includes/templates/success.tpl");
+
+		}
+
 		$tpl_head = new Template("../includes/templates/head.tpl");
 		$tpl_nav = new Template("../includes/templates/nav.tpl");
 		$tpl_foot = new Template("../includes/templates/foot.tpl");
@@ -194,7 +267,8 @@ if ($login->isUserLoggedIn() == true)
 		$tpl_nav->set('nav_brand_url', $nav_brand_url);
 		$tpl_nav->set('nav_brand_name', $nav_brand_name);
 
-		$tpl_profile->set('username', $username);
+		$tpl_profile->set('nest_username', $nest_username);
+		$tpl_profile->set('zipcode', $user_zip );
 		echo $tpl_head->fetch('../includes/templates/head.tpl');
 		echo $tpl_nav->fetch('../includes/templates/nav.tpl');
 		echo $tpl_profile->fetch('../includes/templates/profile.tpl');
