@@ -10,13 +10,13 @@ http://git.f0rkznet.net/f0rkz/bootstrap-nest-administration-tool/raw/master/nest
 
 *	Control panel to set temperatures and tweak settings
 
-
+Prerequisite PHP Packages
+-------------
+*	php5-json
+*	php5-mcrypt
 
 INSTALL INSTRUCTIONS
-
-Prerequisite PHP Packages
-php5-json
-php5-mcrypt
+=============
 
 -Create a mysql database and give it a username and password.
 
