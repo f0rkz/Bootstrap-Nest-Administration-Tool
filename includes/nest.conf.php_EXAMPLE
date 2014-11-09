@@ -10,8 +10,10 @@ define('DB_USER', 'someuser');
 define('DB_PASS', 'somepass');
 define('DB_NAME', 'somedatabase');
 
-// Location configuration
-define('ZIP_CODE', 'your_zip_here');
+// Local Timezone settings
+// Make sure your timezone reflects the proper php timezone
+// You can look up your timezone format here: http://php.net/manual/en/timezones.php
+$timezone = "America/New_York";
 
 // Key for nest password. Since nest does not use API keys per thermostat (yet),
 // we want to encrypt the database contents for safety.
