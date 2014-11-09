@@ -5,7 +5,9 @@ A nest control panel made with Twitter Bootstrap. View historcal graphs and cont
 Features
 -------------
 *	Intuitive graphing using Highcharts Highstocks graphing tools
-		http://git.f0rkznet.net/f0rkz/bootstrap-nest-administration-tool/raw/master/nest-graphs.png
+
+<img src="http://git.f0rkznet.net/f0rkz/bootstrap-nest-administration-tool/raw/master/nest-graphs.png">
+
 *	Control panel to set temperatures and tweak settings
 
 
