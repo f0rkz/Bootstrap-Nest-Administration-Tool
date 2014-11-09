@@ -39,6 +39,7 @@ INSTALL INSTRUCTIONS
 
 -Configure the crontab to collect nest data and do scheduled tasks:
 Modify the path below to reflect your install:
+
 	*/5 * * * * /bin/rm -f /tmp/nest_php_* ; cd /home/f0rkz/nest.f0rkznet.net/includes/scripts/; /usr/bin/php /home/f0rkz/nest.f0rkznet.net/includes/scripts/collect-nest-data.php > /dev/null
 
 
