@@ -158,7 +158,7 @@ if ($login->isUserLoggedIn() == true)
 		$tpl_nav = new Template("../includes/templates/nav.tpl");
 		$tpl_foot = new Template("../includes/templates/foot.tpl");
 		$tpl_chart_nest_stats = new Template("../includes/templates/chart_nest_stats.tpl");
-		$tpl_chart_unit_stats = new Template("../includes/templates/chart_unit_stats.tpl");
+		//$tpl_chart_unit_stats = new Template("../includes/templates/chart_unit_stats.tpl");
 
 		$tpl_head->set('title', "Nest Administration Tool: Graphs");
 		$tpl_nav->set('nav_brand_url', $nav_brand_url);
@@ -224,14 +224,14 @@ if ($login->isUserLoggedIn() == true)
 		$tpl_chart_nest_stats->set('data_cooling', $data_cooling);
 		$tpl_chart_nest_stats->set('data_heating', $data_heating);
 
-		$tpl_chart_unit_stats->set('date_offset', $date_offset);
-		$tpl_chart_unit_stats->set('data_cooling', $data_cooling);
-		$tpl_chart_unit_stats->set('data_heating', $data_heating);
+		//$tpl_chart_unit_stats->set('date_offset', $date_offset);
+		//$tpl_chart_unit_stats->set('data_cooling', $data_cooling);
+		//$tpl_chart_unit_stats->set('data_heating', $data_heating);
 
 		echo $tpl_head->fetch('../includes/templates/head.tpl');
 		echo $tpl_nav->fetch('../includes/templates/nav.tpl');
 		echo $tpl_chart_nest_stats->fetch('../includes/templates/chart_nest_stats.tpl');
-		echo $tpl_chart_unit_stats->fetch('../includes/templates/chart_unit_stats.tpl');
+		//echo $tpl_chart_unit_stats->fetch('../includes/templates/chart_unit_stats.tpl');
 		echo $tpl_foot->fetch('../includes/templates/foot.tpl');
 	}
 	if (isset($request['page']) && $request['page'] == 'profile')
