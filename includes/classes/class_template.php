@@ -11,7 +11,7 @@ Template class file - "class_template.php"
 
 class Template {
     // Primary variable array, used to store static data and output it into the template file
-    var $vars;
+    var $vars = array();
 
     // Loads a template file $file to be used by the object
     function Template($file = null) {

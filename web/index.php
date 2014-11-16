@@ -28,7 +28,7 @@ $login = new Login();
 
 if ($login->isUserLoggedIn() == false)
 {
-	if ($request['page'] == 'register')
+	if (isset($request['page']) && $requestp['page'] == 'register')
 	{
 		$registration = new Registration();
 		if (isset($registration)) 
@@ -152,7 +152,7 @@ if ($login->isUserLoggedIn() == true)
 		echo $tpl_stats->fetch('../includes/templates/col-md-12-container.tpl');
 		echo $tpl_foot->fetch('../includes/templates/foot.tpl');
 	}
-	if ($request['page'] == 'graphs' )
+	if (isset($request['page']) && $request['page'] == 'graphs' )
 	{
 		$tpl_head = new Template("../includes/templates/head.tpl");
 		$tpl_nav = new Template("../includes/templates/nav.tpl");
@@ -183,6 +183,14 @@ if ($login->isUserLoggedIn() == true)
 		{
 	        echo "Failed to connect to MySQL: " . mysqli_connect_error();
 		}
+		$data_temp = array();
+		$data_humidity = array();
+		$data_setpoint = array();
+		$data_outside_temp = array();
+		$data_outside_humidity = array();
+		$data_cooling = array();
+		$data_heating = array();
+
 		while ($row = mysqli_fetch_array($result))
 		{
 			$timestamp = $row['timestamp'];
@@ -224,7 +232,7 @@ if ($login->isUserLoggedIn() == true)
 		echo $tpl_chart_unit_stats->fetch('../includes/templates/chart_unit_stats.tpl');
 		echo $tpl_foot->fetch('../includes/templates/foot.tpl');
 	}
-	if ($request['page'] == 'profile')
+	if (isset($request['page']) && $request['page'] == 'profile')
 	{
 
 		// Get the user's information
@@ -276,7 +284,7 @@ if ($login->isUserLoggedIn() == true)
 	} 
 }
 
-if ($request['logout'])
+if (isset($request['logout']))
 {
 	header('/');
 }
