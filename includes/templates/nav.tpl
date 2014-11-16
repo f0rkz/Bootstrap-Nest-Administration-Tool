@@ -10,13 +10,13 @@
         </div>
         <div class="navbar-collapse collapse navbar-inverse-collapse">
           <ul class="nav navbar-nav">
-            <li><a href="/?page=graphs">Graphs</a></li>
-            <li><a href="/?page=profile">Settings</a></li>
-            <li><a href="#">Even more stuff</a></li>
+            <li><a href="index.php?page=graphs">Graphs</a></li>
+            <li><a href="index.php?page=profile">Settings</a></li>
+            <li><a href="index.php#">Even more stuff</a></li>
           </ul>
 
           <ul class="nav navbar-nav navbar-right">
-            <li><a href="/?logout">Logout</a></li>
+            <li><a href="index.php?logout">Logout</a></li>
           </ul>
         </div>
       </div>

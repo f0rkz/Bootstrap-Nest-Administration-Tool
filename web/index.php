@@ -50,7 +50,7 @@ if ($login->isUserLoggedIn() == false)
         			$tpl_success = new Template("../includes/templates/success.tpl");
         			$tpl_success->set("success_text", $success_message);
 	        	    echo $tpl_success->fetch("../includes/templates/success.tpl");
-	        	    header("refresh:5; url=/index.php"); 
+	        	    header("refresh:5; url=index.php"); 
         		}
     		}
 		}
