@@ -1,3 +1,8 @@
+html,body,div.container {
+    height:100%;
+}
+
+
 body { 
     padding-top: 65px; 
 }
