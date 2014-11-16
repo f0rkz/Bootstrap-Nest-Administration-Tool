@@ -59,34 +59,66 @@ $(function () {
     		text: 'All'
 		}],
 	    },
-        yAxis: {
+        yAxis:[{
             title: {
-                text: 'Value'
-            }
-        },
+                text: 'Temperature °C' 
+        }}, {
+       	    title: {
+                text: 'Relative Humidity %'
+            },
+	    	opposite: false
+	    }],	    
         plotOptions: {
             line: {
                 marker: {
                     enabled: false
                 }
+            },
+            series: {
+                connectNulls: false
             }
         },
-
         series: [{
             name: 'Inside Temperature',
+	    	type: 'spline',
+	    	color: 'orange',
             data: [<?php echo join($data_temp, ','); ?>]
         }, {
             name: 'Outside Temperature',
+	    	type: 'spline',
+	    	color: 'blue',
+	    	negativeColor: 'red',
             data: [<?php echo join($data_outside_temp, ','); ?>]
         }, {
             name: 'Thermostat Setpoint',
+	    	type: 'line',
+	    	color: '#50B432',
             data: [<?php echo join($data_setpoint, ','); ?>]
         }, {
             name: 'Inside Humidity',
+	    	type: 'spline',
+	    	yAxis: 1,
             data: [<?php echo join($data_humidity, ','); ?>]
         }, {
         	name: 'Outside Humidity',
+	    	type: 'spline',
+	    	color: '#6AF9C4',
+	    	yAxis: 1,
         	data: [<?php echo join($data_outside_humidity, ','); ?>]
+        }, {
+            name: 'Cooling',
+	    	type: 'area',
+	    	fillOpacity: 0.1,
+	    	color: '#058DC7',
+            data: [<?php echo join($data_cooling, ','); ?>]
+        }, {
+            name: 'Heating',
+	    	lineWidth: 0,
+	    	type: 'area',
+	    	threshold: 0,
+	    	fillOpacity: 0.2,
+	    	color: '#FF9655',
+            data: [<?php echo join($data_heating, ','); ?>]
         }],
         legend: {
 			enabled: true,

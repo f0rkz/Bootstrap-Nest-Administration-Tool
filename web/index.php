@@ -195,9 +195,9 @@ if ($login->isUserLoggedIn() == true)
 		{
 			$timestamp = $row['timestamp'];
 			$timestamp_offset = $row['timestamp_offset'];
-			$heating = $row['heating'];
-			$cooling = $row['cooling'];
-			$setpoint = $row['target'];
+			$heating = $row['heating'] ? $row['target'] : "null";
+			$cooling = $row['cooling'] ? $row['target'] : "null";
+			$setpoint = $row['target'] > 0 ? $row['target'] : "null";
 			$temp = $row['current'];
 			$humidity = $row['humidity'];
 			$outside_temp = $row['outside_temp'];
@@ -221,6 +221,8 @@ if ($login->isUserLoggedIn() == true)
 		$tpl_chart_nest_stats->set('data_setpoint', $data_setpoint);
 		$tpl_chart_nest_stats->set('data_outside_temp', $data_outside_temp);
 		$tpl_chart_nest_stats->set('data_outside_humidity', $data_outside_humidity);
+		$tpl_chart_nest_stats->set('data_cooling', $data_cooling);
+		$tpl_chart_nest_stats->set('data_heating', $data_heating);
 
 		$tpl_chart_unit_stats->set('date_offset', $date_offset);
 		$tpl_chart_unit_stats->set('data_cooling', $data_cooling);
