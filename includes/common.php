@@ -15,3 +15,4 @@ include('../includes/classes/registration.php');
 include('../includes/nest.conf.php');
 include('../includes/functions/convertKelvin.php');
 include('../includes/functions/encrypt_decrypt.php');
+include('../includes/functions/password.php');
