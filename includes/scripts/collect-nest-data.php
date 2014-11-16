@@ -27,6 +27,7 @@ while ( $row = mysqli_fetch_array($get_users))
 	define('PASSWORD', $nest_password_decrypt);
 
 	// Open weathermap api call
+	$user_zip = str_pad($user_zip, 5, '0', STR_PAD_LEFT);
 	$weather_json = "http://api.openweathermap.org/data/2.5/weather?q=" . $user_zip;
 	$weather_array = json_decode(file_get_contents($weather_json));
 	$user_lat = $weather_array->coord->lat;
