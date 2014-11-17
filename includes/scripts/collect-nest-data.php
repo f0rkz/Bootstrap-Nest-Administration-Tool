@@ -14,6 +14,10 @@ while ( $row = mysqli_fetch_array($get_users))
 {
 	$user_id = $row['user_id'];
 	$user_zip = $row['user_zip'];
+	if ($user_zip == 0)
+	{
+		$user_zip = 30303;
+	}
 	$nest_username = $row['nest_username'];
 	$nest_password = $row['nest_password'];
 	$nest_password_decrypt = decrypt($nest_password, ENCRYPTION_KEY);
