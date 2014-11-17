@@ -19,3 +19,8 @@ $timezone = "America/New_York";
 // we want to encrypt the database contents for safety.
 // Set something random here. You should change this.
 define("ENCRYPTION_KEY", "4jiadg892kwentj923");
+
+// Default username to display for front page graph
+// If you do not want a username set here, please set it NULL without "quotation marks"
+define("DEFAULT_USER", NULL);
+//define("DEFAULT_USER", "someuser");
