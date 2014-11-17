@@ -86,8 +86,8 @@ $(function () {
         }, {
             name: 'Outside Temperature',
 	    	type: 'spline',
-	    	color: 'blue',
-	    	negativeColor: 'red',
+	    	color: 'red',
+	    	negativeColor: 'blue',
             data: [<?php echo join($data_outside_temp, ','); ?>]
         }, {
             name: 'Thermostat Setpoint',

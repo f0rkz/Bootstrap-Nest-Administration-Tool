@@ -28,7 +28,7 @@ $login = new Login();
 
 if ($login->isUserLoggedIn() == false)
 {
-	if (isset($request['page']) && $requestp['page'] == 'register')
+	if (isset($request['page']) && $request['page'] == 'register')
 	{
 		$registration = new Registration();
 		if (isset($registration)) 
