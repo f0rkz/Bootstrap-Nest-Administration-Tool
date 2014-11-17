@@ -190,6 +190,10 @@ if ($login->isUserLoggedIn() == true)
 		$data_outside_humidity = array();
 		$data_cooling = array();
 		$data_heating = array();
+		$last_temp = null;
+		$last_humidity = null;
+		$last_outside_temp = null;
+		$last_outside_humidity = null;
 
 		while ($row = mysqli_fetch_array($result))
 		{
@@ -204,11 +208,33 @@ if ($login->isUserLoggedIn() == true)
 			$outside_humidity = $row['outside_humidity'];
 
 			$timestamp *= 1000; // convert from Unix timestamp to JavaScript time
-			$data_temp[] .= "[$timestamp, $temp]";
+
+			if ($last_temp == null || $last_temp != $temp)
+			{
+				$last_temp = $temp;
+				$data_temp[] .= "[$timestamp, $temp]";	
+			}
+
+			if ($last_humidity == null || $last_humidity != $humidity)
+			{
+				$last_humidity = $humidity;
 			$data_humidity[] .= "[$timestamp, $humidity]";
+			}
+
 			$data_setpoint[] .= "[$timestamp, $setpoint]";
-			$data_outside_temp[] .= "[$timestamp, $outside_temp]";
-			$data_outside_humidity[] .= "[$timestamp, $outside_humidity]";
+
+			if ($last_outside_temp == null || $last_outside_temp != $outside_temp)
+			{
+				$last_outside_temp = $outside_temp;
+				$data_outside_temp[] .= "[$timestamp, $outside_temp]";	
+			}
+
+			if ($last_outside_humidity == null || $last_outside_humidity != $outside_humidity)
+			{
+				$last_outside_humidity = $outside_humidity;
+				$data_outside_humidity[] .= "[$timestamp, $outside_humidity]";	
+			}
+			
 			$data_cooling[] .= "[$timestamp, $cooling]";
 			$data_heating[] .= "[$timestamp, $heating]";
 		}
