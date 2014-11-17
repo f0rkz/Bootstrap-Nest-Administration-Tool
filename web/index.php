@@ -218,10 +218,8 @@ if ($login->isUserLoggedIn() == true)
 			if ($last_humidity == null || $last_humidity != $humidity)
 			{
 				$last_humidity = $humidity;
-			$data_humidity[] .= "[$timestamp, $humidity]";
+				$data_humidity[] .= "[$timestamp, $humidity]";	
 			}
-
-			$data_setpoint[] .= "[$timestamp, $setpoint]";
 
 			if ($last_outside_temp == null || $last_outside_temp != $outside_temp)
 			{
@@ -234,10 +232,17 @@ if ($login->isUserLoggedIn() == true)
 				$last_outside_humidity = $outside_humidity;
 				$data_outside_humidity[] .= "[$timestamp, $outside_humidity]";	
 			}
-			
+
+			$data_setpoint[] .= "[$timestamp, $setpoint]";			
 			$data_cooling[] .= "[$timestamp, $cooling]";
 			$data_heating[] .= "[$timestamp, $heating]";
 		}
+
+		// add last points in case they were skipped
+		$data_temp[] .= "[$timestamp, $temp]";	
+		$data_humidity[] .= "[$timestamp, $humidity]";	
+		$data_outside_temp[] .= "[$timestamp, $outside_temp]";	
+		$data_outside_humidity[] .= "[$timestamp, $outside_humidity]";	
 
 		$date_offset = $timestamp_offset * -1;
 
