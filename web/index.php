@@ -39,7 +39,7 @@ if ($login->isUserLoggedIn() == false)
         		{
 	        	    $tpl_error = new Template("../includes/templates/error.tpl");
         			$tpl_error->set("error_text", $error);
-	        	    echo $tpl_error->fetch("../includes/templates/error.tpl");
+	        	    echo $tpl_error->fetch();
         		}
     		}
     		if ($registration->messages) 
@@ -49,7 +49,7 @@ if ($login->isUserLoggedIn() == false)
 	        		$success_message = $message . " <a href=\"/\">Back to home</a>";
         			$tpl_success = new Template("../includes/templates/success.tpl");
         			$tpl_success->set("success_text", $success_message);
-	        	    echo $tpl_success->fetch("../includes/templates/success.tpl");
+	        	    echo $tpl_success->fetch();
 	        	    header("refresh:5; url=index.php"); 
         		}
     		}
@@ -59,32 +59,40 @@ if ($login->isUserLoggedIn() == false)
 		$tpl_registration = new Template("../includes/templates/register.tpl");
 		$tpl_foot = new Template("../includes/templates/foot.tpl");
 
-		echo $tpl_head->fetch('../includes/templates/head-login.tpl');
-		echo $tpl_registration->fetch('../includes/templates/register.tpl');
-		echo $tpl_foot->fetch('../includes/templates/foot.tpl');
+		echo $tpl_head->fetch();
+		echo $tpl_registration->fetch();
+		echo $tpl_foot->fetch();
 	}
 	else
 	{
-		if (isset($login)) 
+		if ($request == null && defined('DEFAULT_USER') && !is_null(DEFAULT_USER))
 		{
-			if ($login->errors) 
-			{
-		   		foreach ($login->errors as $error) 
-		   		{
-	        	    $tpl_error = new Template("../includes/templates/error.tpl");
-        			$tpl_error->set("error_text", $error);
-	        	    echo $tpl_error->fetch("../includes/templates/error.tpl");				}
-			}
+			$username = DEFAULT_USER;
 		}
-		$tpl_head = new Template("../includes/templates/head-login.tpl");
-		$tpl_login = new Template("../includes/templates/login.tpl");
-		$tpl_foot = new Template("../includes/templates/foot.tpl");
+		else
+		{
+			if (isset($login)) 
+			{
+				if ($login->errors) 
+				{
+			   		foreach ($login->errors as $error) 
+			   		{
+		        	    $tpl_error = new Template("../includes/templates/error.tpl");
+	        			$tpl_error->set("error_text", $error);
+		        	    echo $tpl_error->fetch();				
+		        	}
+				}
+			}
+			$tpl_head = new Template("../includes/templates/head-login.tpl");
+			$tpl_login = new Template("../includes/templates/login.tpl");
+			$tpl_foot = new Template("../includes/templates/foot.tpl");
 
-		$tpl_head->set('title', "Nest Administration Tool");
+			$tpl_head->set('title', "Nest Administration Tool");
 
-		echo $tpl_head->fetch('../includes/templates/head-login.tpl');
-		echo $tpl_login->fetch('../includes/templates/login.tpl');
-		echo $tpl_foot->fetch('../includes/templates/foot.tpl');
+			echo $tpl_head->fetch();
+			echo $tpl_login->fetch();
+			echo $tpl_foot->fetch();
+		}
 	}
 }
 
@@ -94,71 +102,19 @@ if ($login->isUserLoggedIn() == false)
 / for the user's session.
 /**********************************************************************************/
 
-if ($login->isUserLoggedIn() == true)
+if ($request == null)
 {
-	$username = $_SESSION['user_name'];
-
-	if ($request == null)
+	if ($login->isUserLoggedIn() == true)
 	{
-		/*
-		// Query database for collected data
-		*/
-		$db_connect = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-
-		$user_id_query = "select user_id from users where user_name = \"$username\"";
-		$get_user_id = mysqli_query($db_connect, $user_id_query);
-		while ( $user_row = mysqli_fetch_array($get_user_id))
-		{
-			$user_id = $user_row['user_id'];
-		}
-
-		$query = "select * from data where user_id = \"$user_id\" ORDER BY timestamp";
-
-		$result = mysqli_query($db_connect, $query);
-		if (mysqli_connect_errno())
-		{
-	        echo "Failed to connect to MySQL: " . mysqli_connect_error();
-		}
-		while ($row = mysqli_fetch_array($result))
-		{
-			$timestamp = $row['timestamp'];
-			$timestamp_offset = $row['timestamp_offset'];
-			$heating = $row['heating'];
-			$cooling = $row['cooling'];
-			$setpoint = $row['target'];
-			$temp = $row['current'];
-			$humidity = $row['humidity'];
-			$outside_temp = $row['outside_temp'];
-			$outside_humidity = $row['outside_humidity'];
-			
-		}
-
-		$tpl_head = new Template("../includes/templates/head.tpl");
-		$tpl_nav = new Template("../includes/templates/nav.tpl");
-		$tpl_foot = new Template("../includes/templates/foot.tpl");
-
-		$tpl_stats = new Template("../includes/templates/col-md-12-container.tpl");
-
-		$tpl_head->set('title', "Nest Administration Tool");
-		$tpl_nav->set('nav_brand_url', $nav_brand_url);
-		$tpl_nav->set('nav_brand_name', $nav_brand_name);
-
-		$tpl_stats->set('container_header', "Nest Statistics");
-		$tpl_stats->set('body_elements', "Stats");
-
-		echo $tpl_head->fetch('../includes/templates/head.tpl');
-		echo $tpl_nav->fetch('../includes/templates/nav.tpl');
-
-		echo $tpl_stats->fetch('../includes/templates/col-md-12-container.tpl');
-		echo $tpl_foot->fetch('../includes/templates/foot.tpl');
+		$username = $_SESSION['user_name'];
 	}
-	if (isset($request['page']) && $request['page'] == 'graphs' )
+
+	if (isset($username))
 	{
 		$tpl_head = new Template("../includes/templates/head.tpl");
-		$tpl_nav = new Template("../includes/templates/nav.tpl");
+		$tpl_nav = ($login->isUserLoggedIn() == true)? new Template("../includes/templates/nav-user.tpl") : new Template("../includes/templates/nav-public.tpl");
 		$tpl_foot = new Template("../includes/templates/foot.tpl");
 		$tpl_chart_nest_stats = new Template("../includes/templates/chart_nest_stats.tpl");
-		//$tpl_chart_unit_stats = new Template("../includes/templates/chart_unit_stats.tpl");
 
 		$tpl_head->set('title', "Nest Administration Tool: Graphs");
 		$tpl_nav->set('nav_brand_url', $nav_brand_url);
@@ -255,18 +211,18 @@ if ($login->isUserLoggedIn() == true)
 		$tpl_chart_nest_stats->set('data_cooling', $data_cooling);
 		$tpl_chart_nest_stats->set('data_heating', $data_heating);
 
-		//$tpl_chart_unit_stats->set('date_offset', $date_offset);
-		//$tpl_chart_unit_stats->set('data_cooling', $data_cooling);
-		//$tpl_chart_unit_stats->set('data_heating', $data_heating);
-
-		echo $tpl_head->fetch('../includes/templates/head.tpl');
-		echo $tpl_nav->fetch('../includes/templates/nav.tpl');
-		echo $tpl_chart_nest_stats->fetch('../includes/templates/chart_nest_stats.tpl');
-		//echo $tpl_chart_unit_stats->fetch('../includes/templates/chart_unit_stats.tpl');
-		echo $tpl_foot->fetch('../includes/templates/foot.tpl');
+		echo $tpl_head->fetch();
+		echo $tpl_nav->fetch();
+		echo $tpl_chart_nest_stats->fetch();
+		echo $tpl_foot->fetch();
 	}
-	if (isset($request['page']) && $request['page'] == 'profile')
+}
+
+if (isset($request['page']) && $request['page'] == 'profile')
+{
+	if ($login->isUserLoggedIn() == true)
 	{
+		$username = $_SESSION['user_name'];
 
 		// Get the user's information
 		$db_connect = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
@@ -295,12 +251,12 @@ if ($login->isUserLoggedIn() == true)
        		$success_message = $message . "Updated user preferences";
    			$tpl_success = new Template("../includes/templates/success.tpl");
    			$tpl_success->set("success_text", $success_message);
-       	    echo $tpl_success->fetch("../includes/templates/success.tpl");
+       	    echo $tpl_success->fetch();
 
 		}
 
 		$tpl_head = new Template("../includes/templates/head.tpl");
-		$tpl_nav = new Template("../includes/templates/nav.tpl");
+		$tpl_nav = new Template("../includes/templates/nav-user.tpl");
 		$tpl_foot = new Template("../includes/templates/foot.tpl");
 		$tpl_profile = new Template("../includes/templates/profile.tpl");
 
@@ -310,10 +266,10 @@ if ($login->isUserLoggedIn() == true)
 
 		$tpl_profile->set('nest_username', $nest_username);
 		$tpl_profile->set('zipcode', $user_zip );
-		echo $tpl_head->fetch('../includes/templates/head.tpl');
-		echo $tpl_nav->fetch('../includes/templates/nav.tpl');
-		echo $tpl_profile->fetch('../includes/templates/profile.tpl');
-		echo $tpl_foot->fetch('../includes/templates/foot.tpl');
+		echo $tpl_head->fetch();
+		echo $tpl_nav->fetch();
+		echo $tpl_profile->fetch();
+		echo $tpl_foot->fetch();
 	} 
 }
 

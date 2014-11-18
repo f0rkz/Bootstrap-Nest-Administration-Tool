@@ -10,7 +10,7 @@
         </div>
         <div class="navbar-collapse collapse navbar-inverse-collapse">
           <ul class="nav navbar-nav">
-            <li><a href="index.php?page=graphs">Graphs</a></li>
+            <li><a href="index.php">Graphs</a></li>
             <li><a href="index.php?page=profile">Settings</a></li>
             <li><a href="index.php#">Even more stuff</a></li>
           </ul>
