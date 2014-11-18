@@ -67,7 +67,7 @@ while ( $row = mysqli_fetch_array($get_users))
 		{
 			die('Error: ' . mysqli_error($db_connect));
 		}
-		$update_location = "UPDATE users SET user_location_lat=\"$user_lat\",user_location_long=\"$user_long\" where user_id = \"$user_id\"";
+		$update_location = "UPDATE users SET user_location_lat=\"$user_lat\",user_location_long=\"$user_long\",scale=\"$scale\" where user_id = \"$user_id\"";
 		if (!mysqli_query($db_connect, $update_location))
 		{
 			die('Error: ' . mysqli_error($db_connect));

@@ -23,6 +23,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `user_location_long` float(10,6) NOT NULL,
   `nest_username` varchar(64) COLLATE utf8_unicode_ci NOT NULL COMMENT 'nest user name, unique',
   `nest_password` varchar(64)COLLATE utf8_unicode_ci NOT NULL,
+  `scale` varchar(10),
   PRIMARY KEY (`user_id`),
   UNIQUE KEY `user_name` (`user_name`),
   UNIQUE KEY `user_email` (`user_email`)
