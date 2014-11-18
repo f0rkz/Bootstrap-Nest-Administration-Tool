@@ -18,30 +18,30 @@ Prerequisite PHP Packages
 INSTALL INSTRUCTIONS
 =============
 
-1.	Create a mysql database and give it a username and password.
+Create a mysql database and give it a username and password.
 
 	create database nest_statistics;
 	grant all privileves on nest_statistics.* to nest_statistics@localhost identified by 'some-password';
 
-2.	Export the tables from dbsetup.sql to the mysql database.
+Export the tables from dbsetup.sql to the mysql database.
 
 	mysql -unest_stats -p nest_stats < dbsetup.sql
 
-3.	Set up vhost with documentroot pointing to ./web/ directory
+Set up vhost with documentroot pointing to ./web/ directory
 
 	Example: /home/user/nest.domainname.com/web/
 
-4.	Copy nest.conf.php_EXAMPLE to nest.conf.php in the includes directory.
+Copy nest.conf.php_EXAMPLE to nest.conf.php in the includes directory.
 
 	cp ./includes/nest.conf.php_EXAMPLE nest.conf.php
 
-5.	Edit nest.conf and follow install prompts.
+Edit nest.conf and follow install prompts.
 
-6.	Configure the crontab to collect nest data and do scheduled tasks:
+Configure the crontab to collect nest data and do scheduled tasks:
 Modify the path below to reflect your install:
 
 	*/5 * * * * /bin/rm -f /tmp/nest_php_* ; cd /home/f0rkz/nest.f0rkznet.net/includes/scripts/; /usr/bin/php /home/f0rkz/nest.f0rkznet.net/includes/scripts/collect-nest-data.php > /dev/null
 
 You may also update the frequency of data collection by modifing the crontab as so. 5 minutes works out pretty well and keeps from flooding the Nest API with too many requests.
 
-7.	Create an account once you can access the tool and configure your nest login information in settings.
+Create an account once you can access the tool and configure your nest login information in settings.
