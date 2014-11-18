@@ -123,6 +123,7 @@ if ($request == null)
 		/*
 		// Query database for collected data
 		*/
+		/*
 		$db_connect = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
 
 		$user_id_query = "select user_id from users where user_name = \"$username\"";
@@ -210,12 +211,116 @@ if ($request == null)
 		$tpl_chart_nest_stats->set('data_outside_humidity', $data_outside_humidity);
 		$tpl_chart_nest_stats->set('data_cooling', $data_cooling);
 		$tpl_chart_nest_stats->set('data_heating', $data_heating);
+		*/
 
 		echo $tpl_head->fetch();
 		echo $tpl_nav->fetch();
 		echo $tpl_chart_nest_stats->fetch();
 		echo $tpl_foot->fetch();
 	}
+}
+
+if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
+{
+	if ($login->isUserLoggedIn() == true)
+	{
+		$username = $_SESSION['user_name'];
+	}
+
+	if (isset($username))
+	{
+		$data_js = new Template("../includes/templates/data.js.tpl");
+
+		$db_connect = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+		$user_id_query = "select user_id from users where user_name = \"$username\"";
+		$get_user_id = mysqli_query($db_connect, $user_id_query);
+		while ( $user_row = mysqli_fetch_array($get_user_id))
+		{
+			$user_id = $user_row['user_id'];
+		}
+
+		$query = "select * from data where user_id = \"$user_id\" ORDER BY timestamp";
+
+		$result = mysqli_query($db_connect, $query);
+		if (mysqli_connect_errno())
+		{
+	        echo "Failed to connect to MySQL: " . mysqli_connect_error();
+		}
+		$data_temp = array();
+		$data_humidity = array();
+		$data_setpoint = array();
+		$data_outside_temp = array();
+		$data_outside_humidity = array();
+		$data_cooling = array();
+		$data_heating = array();
+		$last_temp = null;
+		$last_humidity = null;
+		$last_outside_temp = null;
+		$last_outside_humidity = null;
+
+		while ($row = mysqli_fetch_array($result))
+		{
+			$timestamp = $row['timestamp'];
+			$timestamp_offset = $row['timestamp_offset'];
+			$heating = $row['heating'] ? $row['target'] : "null";
+			$cooling = $row['cooling'] ? $row['target'] : "null";
+			$setpoint = $row['target'] > 0 ? $row['target'] : "null";
+			$temp = $row['current'];
+			$humidity = $row['humidity'];
+			$outside_temp = $row['outside_temp'];
+			$outside_humidity = $row['outside_humidity'];
+
+			$timestamp *= 1000; // convert from Unix timestamp to JavaScript time
+
+			if ($last_temp == null || $last_temp != $temp)
+			{
+				$last_temp = $temp;
+				$data_temp[] .= "[$timestamp, $temp]";	
+			}
+
+			if ($last_humidity == null || $last_humidity != $humidity)
+			{
+				$last_humidity = $humidity;
+				$data_humidity[] .= "[$timestamp, $humidity]";	
+			}
+
+			if ($last_outside_temp == null || $last_outside_temp != $outside_temp)
+			{
+				$last_outside_temp = $outside_temp;
+				$data_outside_temp[] .= "[$timestamp, $outside_temp]";	
+			}
+
+			if ($last_outside_humidity == null || $last_outside_humidity != $outside_humidity)
+			{
+				$last_outside_humidity = $outside_humidity;
+				$data_outside_humidity[] .= "[$timestamp, $outside_humidity]";	
+			}
+
+			$data_setpoint[] .= "[$timestamp, $setpoint]";			
+			$data_cooling[] .= "[$timestamp, $cooling]";
+			$data_heating[] .= "[$timestamp, $heating]";
+		}
+
+		// add last points in case they were skipped
+		$data_temp[] .= "[$timestamp, $temp]";	
+		$data_humidity[] .= "[$timestamp, $humidity]";	
+		$data_outside_temp[] .= "[$timestamp, $outside_temp]";	
+		$data_outside_humidity[] .= "[$timestamp, $outside_humidity]";	
+
+		$date_offset = $timestamp_offset * -1;
+
+		$data_js->set('date_offset', $date_offset);
+		$data_js->set('data_temp', $data_temp);
+		$data_js->set('data_humidity', $data_humidity);
+		$data_js->set('data_setpoint', $data_setpoint);
+		$data_js->set('data_outside_temp', $data_outside_temp);
+		$data_js->set('data_outside_humidity', $data_outside_humidity);
+		$data_js->set('data_cooling', $data_cooling);
+		$data_js->set('data_heating', $data_heating);
+
+		echo $data_js->fetch();
+	}
+
 }
 
 if (isset($request['page']) && $request['page'] == 'profile')
