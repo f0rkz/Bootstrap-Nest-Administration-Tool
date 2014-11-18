@@ -19,6 +19,6 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
     <script src="//code.highcharts.com/stock/highstock.js"></script>
     <script src="//code.highcharts.com/modules/exporting.js"></script>
-    <script src="js/graph_ajax.js"></script>
+    <script src="js/loading_ajax.js"></script>
   </head>
 <body>
