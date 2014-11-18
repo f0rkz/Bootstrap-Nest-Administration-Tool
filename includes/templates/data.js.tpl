@@ -59,7 +59,7 @@ $(function () {
 	    },
         yAxis:[{
             title: {
-                text: 'Temperature °C' 
+                text: 'Temperature <?= $scale; ?>°' 
         }}, {
        	    title: {
                 text: 'Relative Humidity %'

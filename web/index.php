@@ -199,12 +199,25 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 		$data_js = new Template("../includes/templates/data.js.tpl");
 
 		$db_connect = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-		$user_id_query = "select user_id from users where user_name = \"$username\"";
+		$user_id_query = "select * from users where user_name = \"$username\"";
 		$get_user_id = mysqli_query($db_connect, $user_id_query);
 		while ( $user_row = mysqli_fetch_array($get_user_id))
 		{
 			$user_id = $user_row['user_id'];
+
+			// Get nest login information to make api call to get temperature scale
+			$nest_username = $user_row['nest_username'];
+			$nest_password = $user_row['nest_password'];
 		}
+
+		$nest_password_decrypt = trim(decrypt($nest_password, ENCRYPTION_KEY));
+		define('USERNAME', $nest_username);
+		define('PASSWORD', $nest_password_decrypt);
+
+		$nest = new Nest();
+		$infos = $nest->getDeviceInfo();
+
+		$scale = $infos->scale;
 
 		$query = "select * from data where user_id = \"$user_id\" ORDER BY timestamp";
 
@@ -284,7 +297,10 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 		$data_js->set('data_outside_humidity', $data_outside_humidity);
 		$data_js->set('data_cooling', $data_cooling);
 		$data_js->set('data_heating', $data_heating);
+		$data_js->set('scale', $scale);
 
+
+		header("content-type: application/javascript");
 		echo $data_js->fetch();
 	}
 
