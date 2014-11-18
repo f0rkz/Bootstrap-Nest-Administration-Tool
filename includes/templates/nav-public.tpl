@@ -11,6 +11,8 @@
         <div class="navbar-collapse collapse navbar-inverse-collapse">
           <ul class="nav navbar-nav">
             <li><a href="index.php">Graphs</a></li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
             <li><a href="index.php?page=login">Login</a></li>
             <li><a href="index.php?page=register">Register</a></li>
           </ul>
