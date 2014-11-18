@@ -26,7 +26,7 @@ $login = new Login();
 / for the not logged in user.
 /**********************************************************************************/
 
-if ($login->isUserLoggedIn() == false)
+if ($login->isUserLoggedIn() == false && !$request['cmd'] == 'generate_graph')
 {
 	if (isset($request['page']) && $request['page'] == 'register')
 	{
@@ -127,8 +127,68 @@ if ($request == null)
 	}
 }
 
+if (isset($request['page']) && $request['page'] == 'profile')
+{
+	if ($login->isUserLoggedIn() == true)
+	{
+		$username = $_SESSION['user_name'];
+
+		// Get the user's information
+		$db_connect = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+		$user_id_query = "select user_id, nest_username, user_zip from users where user_name = \"$username\"";
+		$get_user_id = mysqli_query($db_connect, $user_id_query);
+		while ( $user_row = mysqli_fetch_array($get_user_id))
+		{
+			$user_id = $user_row['user_id'];
+			$user_zip = $user_row['user_zip'];
+			$nest_username = $user_row['nest_username'];
+		}
+		if ($request['postsettings'] == 'update')
+		{
+			$nest_username = $input['nest']['username'];
+			$nest_password = $input['nest']['password'];
+			$nest_zipcode = $input['nest']['location'];
+
+			$nest_password_encrypt = encrypt($nest_password, ENCRYPTION_KEY);
+
+			$fields = "nest_username=\"$nest_username\", nest_password=\"$nest_password_encrypt\", user_zip=\"$nest_zipcode\"";
+			$server_sql = "UPDATE users SET $fields WHERE user_id = $user_id";
+			mysqli_query($db_connect, $server_sql);
+
+			$user_zip = $nest_zipcode;
+
+       		$success_message = $message . "Updated user preferences";
+   			$tpl_success = new Template("../includes/templates/success.tpl");
+   			$tpl_success->set("success_text", $success_message);
+       	    echo $tpl_success->fetch();
+
+		}
+
+		$tpl_head = new Template("../includes/templates/head.tpl");
+		$tpl_nav = new Template("../includes/templates/nav-user.tpl");
+		$tpl_foot = new Template("../includes/templates/foot.tpl");
+		$tpl_profile = new Template("../includes/templates/profile.tpl");
+
+		$tpl_head->set('title', "Nest Administration Tool: Settings");
+		$tpl_nav->set('nav_brand_url', $nav_brand_url);
+		$tpl_nav->set('nav_brand_name', $nav_brand_name);
+
+		$tpl_profile->set('nest_username', $nest_username);
+		$tpl_profile->set('zipcode', $user_zip );
+		echo $tpl_head->fetch();
+		echo $tpl_nav->fetch();
+		echo $tpl_profile->fetch();
+		echo $tpl_foot->fetch();
+	} 
+}
+
 if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 {
+	if (defined('DEFAULT_USER') && !is_null(DEFAULT_USER))
+	{
+		$username = DEFAULT_USER;
+	}
+
 	if ($login->isUserLoggedIn() == true)
 	{
 		$username = $_SESSION['user_name'];
@@ -228,61 +288,6 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 		echo $data_js->fetch();
 	}
 
-}
-
-if (isset($request['page']) && $request['page'] == 'profile')
-{
-	if ($login->isUserLoggedIn() == true)
-	{
-		$username = $_SESSION['user_name'];
-
-		// Get the user's information
-		$db_connect = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-		$user_id_query = "select user_id, nest_username, user_zip from users where user_name = \"$username\"";
-		$get_user_id = mysqli_query($db_connect, $user_id_query);
-		while ( $user_row = mysqli_fetch_array($get_user_id))
-		{
-			$user_id = $user_row['user_id'];
-			$user_zip = $user_row['user_zip'];
-			$nest_username = $user_row['nest_username'];
-		}
-		if ($request['postsettings'] == 'update')
-		{
-			$nest_username = $input['nest']['username'];
-			$nest_password = $input['nest']['password'];
-			$nest_zipcode = $input['nest']['location'];
-
-			$nest_password_encrypt = encrypt($nest_password, ENCRYPTION_KEY);
-
-			$fields = "nest_username=\"$nest_username\", nest_password=\"$nest_password_encrypt\", user_zip=\"$nest_zipcode\"";
-			$server_sql = "UPDATE users SET $fields WHERE user_id = $user_id";
-			mysqli_query($db_connect, $server_sql);
-
-			$user_zip = $nest_zipcode;
-
-       		$success_message = $message . "Updated user preferences";
-   			$tpl_success = new Template("../includes/templates/success.tpl");
-   			$tpl_success->set("success_text", $success_message);
-       	    echo $tpl_success->fetch();
-
-		}
-
-		$tpl_head = new Template("../includes/templates/head.tpl");
-		$tpl_nav = new Template("../includes/templates/nav-user.tpl");
-		$tpl_foot = new Template("../includes/templates/foot.tpl");
-		$tpl_profile = new Template("../includes/templates/profile.tpl");
-
-		$tpl_head->set('title', "Nest Administration Tool: Settings");
-		$tpl_nav->set('nav_brand_url', $nav_brand_url);
-		$tpl_nav->set('nav_brand_name', $nav_brand_name);
-
-		$tpl_profile->set('nest_username', $nest_username);
-		$tpl_profile->set('zipcode', $user_zip );
-		echo $tpl_head->fetch();
-		echo $tpl_nav->fetch();
-		echo $tpl_profile->fetch();
-		echo $tpl_foot->fetch();
-	} 
 }
 
 if (isset($request['logout']))
