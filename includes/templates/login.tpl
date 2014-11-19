@@ -1,5 +1,4 @@
     <div class="container">
-
       <form method="post" action="index.php" name="loginform" class="form-signin" role="form">
         <h2 class="form-signin-heading">Please sign in</h2>
         <input id="login_input_username" name="user_name" type="username" class="form-control" placeholder="Username" required autofocus>

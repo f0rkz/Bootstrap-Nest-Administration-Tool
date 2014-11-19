@@ -204,20 +204,8 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 		while ( $user_row = mysqli_fetch_array($get_user_id))
 		{
 			$user_id = $user_row['user_id'];
-
-			// Get nest login information to make api call to get temperature scale
-			$nest_username = $user_row['nest_username'];
-			$nest_password = $user_row['nest_password'];
+			$scale = $user_row['scale'];
 		}
-
-		$nest_password_decrypt = trim(decrypt($nest_password, ENCRYPTION_KEY));
-		define('USERNAME', $nest_username);
-		define('PASSWORD', $nest_password_decrypt);
-
-		$nest = new Nest();
-		$infos = $nest->getDeviceInfo();
-
-		$scale = $infos->scale;
 
 		$query = "select * from data where user_id = \"$user_id\" ORDER BY timestamp";
 
