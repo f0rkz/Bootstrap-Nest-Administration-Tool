@@ -296,5 +296,7 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 
 if (isset($request['logout']))
 {
-	header('/');
+	$request = null;
+	header("Location: index.php");
+	die();
 }
