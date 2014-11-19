@@ -20,8 +20,8 @@ INSTALL INSTRUCTIONS
 
 Create a mysql database and give it a username and password.
 
-	create database nest_statistics;
-	grant all privileves on nest_statistics.* to nest_statistics@localhost identified by 'some-password';
+	create database nest_stats;
+	grant all privileves on nest_stats.* to nest_stats@localhost identified by 'some-password';
 
 Export the tables from dbsetup.sql to the mysql database.
 
