@@ -82,9 +82,10 @@ $(function () {
 	    	color: 'orange',
             data: [<?php echo join($data_temp, ','); ?>]
         }, {
-            name: 'Outside Temperature',
+            name: 'Outside Temperature (<span style="color:blue">below freezing</span>)'
 	    	type: 'spline',
 	    	color: 'red',
+            threshold: <?= $freezing_point; ?>,
 	    	negativeColor: 'blue',
             data: [<?php echo join($data_outside_temp, ','); ?>]
         }, {
