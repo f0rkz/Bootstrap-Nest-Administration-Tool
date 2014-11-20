@@ -107,15 +107,16 @@ $(function () {
         }, {
             name: 'Cooling',
 	    	type: 'area',
-	    	fillOpacity: 0.1,
+			threshold: <?= $base_room_temp; ?>,
+	    	fillOpacity: 0.5,
 	    	color: '#058DC7',
             data: [<?php echo join($data_cooling, ','); ?>]
         }, {
             name: 'Heating',
 	    	lineWidth: 0,
 	    	type: 'area',
-	    	threshold: 0,
-	    	fillOpacity: 0.2,
+	    	threshold: <?= $base_room_temp; ?>,
+	    	fillOpacity: 0.5,
 	    	color: '#FF9655',
             data: [<?php echo join($data_heating, ','); ?>]
         }],
