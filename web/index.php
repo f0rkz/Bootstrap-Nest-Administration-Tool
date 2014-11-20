@@ -286,7 +286,7 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 		$data_js->set('data_cooling', $data_cooling);
 		$data_js->set('data_heating', $data_heating);
 		$data_js->set('scale', $scale);
-		$data_js->set('freezing_point', $scale ==' F' ? 32 : 0);
+		$data_js->set('freezing_point', $scale =='F' ? 32 : 0);
 
 		header("content-type: application/javascript");
 		echo $data_js->fetch();
