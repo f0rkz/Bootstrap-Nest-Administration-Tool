@@ -91,6 +91,7 @@ $(function () {
         }, {
             name: 'Thermostat Setpoint',
 	    	type: 'line',
+            step: 'left',
 	    	color: '#50B432',
             data: [<?php echo join($data_setpoint, ','); ?>]
         }, {
@@ -106,6 +107,8 @@ $(function () {
         	data: [<?php echo join($data_outside_humidity, ','); ?>]
         }, {
             name: 'Cooling',
+            step: 'left',
+            lineWidth: 0,
 	    	type: 'area',
 			threshold: <?= $base_room_temp; ?>,
 	    	fillOpacity: 0.5,
@@ -113,6 +116,7 @@ $(function () {
             data: [<?php echo join($data_cooling, ','); ?>]
         }, {
             name: 'Heating',
+            step: 'left',
 	    	lineWidth: 0,
 	    	type: 'area',
 	    	threshold: <?= $base_room_temp; ?>,

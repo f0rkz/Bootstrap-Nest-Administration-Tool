@@ -225,18 +225,39 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 		$last_humidity = null;
 		$last_outside_temp = null;
 		$last_outside_humidity = null;
+		$last_setpoint = null;
+		$last_timestamp = null;
+		$last_heating = null;
+		$last_cooling = null;
 
 		while ($row = mysqli_fetch_array($result))
 		{
 			$timestamp = $row['timestamp'];
 			$timestamp_offset = $row['timestamp_offset'];
-			$heating = $row['heating'] ? $row['target'] : "null";
-			$cooling = $row['cooling'] ? $row['target'] : "null";
-			$setpoint = $row['target'] > 0 ? $row['target'] : "null";
+			$setpoint = $row['target'];
 			$temp = $row['current'];
 			$humidity = $row['humidity'];
 			$outside_temp = $row['outside_temp'];
 			$outside_humidity = $row['outside_humidity'];
+
+			// F - round temperatureto nearest degree
+			// C - round temperature to nearest 0.5
+			if ($scale == 'F')
+			{
+				$setpoint = round($setpoint);
+				$temp = round($temp);
+				$outside_temp = round($outside_temp);
+			}
+			else
+			{
+				$setpoint = round($setpoint * 2) / 2;
+				$temp = round($temp * 2) / 2;
+				$outside_temp = round($outside_temp * 2) / 2;				
+			}
+
+			$setpoint = $setpoint > 0 ? $setpoint : "null";
+			$heating = $row['heating'] ? $setpoint : "null";
+			$cooling = $row['cooling'] ? $setpoint : "null";
 
 			$timestamp *= 1000; // convert from Unix timestamp to JavaScript time
 
@@ -264,9 +285,43 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 				$data_outside_humidity[] .= "[$timestamp, $outside_humidity]";	
 			}
 
-			$data_setpoint[] .= "[$timestamp, $setpoint]";			
-			$data_cooling[] .= "[$timestamp, $cooling]";
-			$data_heating[] .= "[$timestamp, $heating]";
+			if ($last_setpoint == null || $last_setpoint != $setpoint)
+			{
+				if ($setpoint == "null" && $last_timestamp != null)
+				{
+					// add previous point to get the line displayed correctly before away
+					$data_setpoint[] .= "{x:$last_timestamp, y:$last_setpoint}";	
+				}
+
+				$last_setpoint = $setpoint;
+				$data_setpoint[] .= "{x:$timestamp, y:$setpoint, dataLabels: {align: 'left', enabled: true}}";
+			}
+
+			if ($last_heating == null || $last_heating != $heating)
+			{
+				if ($heating == "null" && $last_timestamp != null)
+				{
+					// add previous point to get the line displayed correctly before off
+					$data_heating[] .= "[$last_timestamp, $last_heating]";
+				}
+
+				$last_heating = $heating;
+				$data_heating[] .= "[$timestamp, $heating]";
+			}
+
+			if ($last_cooling == null || $last_cooling != $cooling)
+			{
+				if ($cooling == "null" && $last_timestamp != null)
+				{
+					// add previous point to get the line displayed correctly before off
+					$data_cooling[] .= "[$last_timestamp, $last_cooling]";
+				}
+
+				$last_cooling = $cooling;
+				$data_cooling[] .= "[$timestamp, $cooling]";
+			}
+
+			$last_timestamp = $timestamp;
 		}
 
 		// add last points in case they were skipped
@@ -274,6 +329,9 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 		$data_humidity[] .= "[$timestamp, $humidity]";	
 		$data_outside_temp[] .= "[$timestamp, $outside_temp]";	
 		$data_outside_humidity[] .= "[$timestamp, $outside_humidity]";	
+		$data_setpoint[] .= "{x:$timestamp, y:$setpoint}";
+		$data_heating[] .= "[$timestamp, $heating]";
+		$data_cooling[] .= "[$timestamp, $cooling]";
 
 		$date_offset = $timestamp_offset * -1;
 
