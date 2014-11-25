@@ -17,7 +17,10 @@ $(function () {
         	enabled: false
         },
         xAxis: {
-            type: 'datetime'
+            type: 'datetime',
+            ordinal: false,
+            gridLineWidth: 1,
+            minTickInterval: 1 * 3600 * 1000,
         },
 	    rangeSelector: {
 	    	selected: 1,
