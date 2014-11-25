@@ -290,11 +290,11 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 				if ($setpoint == "null" && $last_timestamp != null)
 				{
 					// add previous point to get the line displayed correctly before away
-					$data_setpoint[] .= "{x:$last_timestamp, y:$last_setpoint}";	
+					$data_setpoint[] .= "[$last_timestamp, $last_setpoint]";
 				}
 
 				$last_setpoint = $setpoint;
-				$data_setpoint[] .= "{x:$timestamp, y:$setpoint, dataLabels: {align: 'left', enabled: true}}";
+				$data_setpoint[] .= "[$timestamp, $setpoint]";
 			}
 
 			if ($last_heating == null || $last_heating != $heating)
@@ -329,7 +329,7 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 		$data_humidity[] .= "[$timestamp, $humidity]";	
 		$data_outside_temp[] .= "[$timestamp, $outside_temp]";	
 		$data_outside_humidity[] .= "[$timestamp, $outside_humidity]";	
-		$data_setpoint[] .= "{x:$timestamp, y:$setpoint}";
+		$data_setpoint[] .= "[$timestamp, $setpoint]";
 		$data_heating[] .= "[$timestamp, $heating]";
 		$data_cooling[] .= "[$timestamp, $cooling]";
 

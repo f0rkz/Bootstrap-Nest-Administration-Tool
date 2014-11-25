@@ -93,6 +93,7 @@ $(function () {
 	    	type: 'line',
             step: 'left',
 	    	color: '#50B432',
+            dataLabels: {align: 'left', enabled: true},
             data: [<?php echo join($data_setpoint, ','); ?>]
         }, {
             name: 'Inside Humidity',
