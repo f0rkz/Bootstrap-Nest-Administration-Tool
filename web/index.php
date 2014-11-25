@@ -143,7 +143,7 @@ if (isset($request['page']) && $request['page'] == 'profile')
 			$user_zip = $user_row['user_zip'];
 			$nest_username = $user_row['nest_username'];
 		}
-		if ($request['postsettings'] == 'update')
+		if (isset($request['postsettings']) && $request['postsettings'] == 'update')
 		{
 			$nest_username = $input['nest']['username'];
 			$nest_password = $input['nest']['password'];
