@@ -13,10 +13,10 @@ $get_users = mysqli_query($db_connect, $user_query);
 while ( $row = mysqli_fetch_array($get_users))
 {
 	$user_id = $row['user_id'];
-	$user_zip = $row['user_zip'];
-	if ($user_zip == 0)
+	$user_location = $row['user_location'];
+	if (empty($user_location))
 	{
-		$user_zip = 30303;
+		$user_location = 30303;
 	}
 	$nest_username = $row['nest_username'];
 	$nest_password = $row['nest_password'];
@@ -27,8 +27,7 @@ while ( $row = mysqli_fetch_array($get_users))
 	define('PASSWORD', $nest_password_decrypt);
 
 	// Open weathermap api call
-	$user_zip = str_pad($user_zip, 5, '0', STR_PAD_LEFT);
-	$weather_json = "http://api.openweathermap.org/data/2.5/weather?q=" . $user_zip;
+	$weather_json = "http://api.openweathermap.org/data/2.5/weather?q=" . urlencode($user_location);
 	$weather_array = json_decode(file_get_contents($weather_json));
 	$user_lat = $weather_array->coord->lat;
 	$user_long = $weather_array->coord->lon;
