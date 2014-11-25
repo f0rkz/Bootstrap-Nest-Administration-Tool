@@ -134,15 +134,18 @@ if (isset($request['page']) && $request['page'] == 'profile')
 		$username = $_SESSION['user_name'];
 
 		// Get the user's information
-		$db_connect = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-		$user_id_query = "select user_id, nest_username, user_location from users where user_name = \"$username\"";
-		$get_user_id = mysqli_query($db_connect, $user_id_query);
-		while ( $user_row = mysqli_fetch_array($get_user_id))
-		{
-			$user_id = $user_row['user_id'];
-			$user_location = $user_row['user_location'];
-			$nest_username = $user_row['nest_username'];
-		}
+		$db_connect = DBConnect::getConnection();
+    $user_id_statement = $db_connect->prepare("select user_id, nest_username, user_location from users where user_name = :username");
+    $user_id_statement->execute(array(
+      'username' => $username,
+    ));
+		$user_results = $user_id_statement->fetchAll();
+    $user_row = $user_results[0];
+
+    $user_id = $user_row['user_id'];
+    $user_location = $user_row['user_location'];
+    $nest_username = $user_row['nest_username'];
+
 		if (isset($request['postsettings']) && $request['postsettings'] == 'update')
 		{
 			$nest_username = $input['nest']['username'];
@@ -151,12 +154,23 @@ if (isset($request['page']) && $request['page'] == 'profile')
 
 			$nest_password_encrypt = encrypt($nest_password, ENCRYPTION_KEY);
 
-			$fields = "nest_username=\"$nest_username\", nest_password=\"$nest_password_encrypt\", user_location=\"$nest_location\"";
-			$server_sql = "UPDATE users SET $fields WHERE user_id = $user_id";
-			mysqli_query($db_connect, $server_sql);
+      $update_statement = $db_connect->prepare("
+        UPDATE users
+        SET nest_username = :nest_username,
+          nest_password = :nest_password,
+          user_location = :user_location
+        WHERE user_id = :user_id
+      ");
+      $update_statement->execute(array(
+        'nest_username' => $nest_username,
+        'nest_password' => $nest_password_encrypt,
+        'user_location' => $nest_location,
+        'user_id' => $user_id,
+      ));
 
 			$user_location = $nest_location;
 
+      $message = isset($message) ? $message : '';
        		$success_message = $message . "Updated user preferences";
    			$tpl_success = new Template("../includes/templates/success.tpl");
    			$tpl_success->set("success_text", $success_message);
