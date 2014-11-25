@@ -80,6 +80,16 @@ $(function () {
 	    	opposite: false
 	    }],	    
         plotOptions: {
+            spline: {
+                events: {
+                    click: function (event) {
+                        this.update({ 
+                            dataLabels: { enabled: !this.options.dataLabels.enabled},
+                            marker: { symbol: 'diamond', radius: 3, enabled: !this.options.marker.enabled}
+                        });
+                    },
+                },
+            },
             line: {
                 marker: {
                     enabled: false
