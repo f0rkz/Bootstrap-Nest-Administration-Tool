@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `user_name` varchar(64) COLLATE utf8_unicode_ci NOT NULL COMMENT 'user''s name, unique',
   `user_password_hash` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'user''s password in salted and hashed format',
   `user_email` varchar(64) COLLATE utf8_unicode_ci NOT NULL COMMENT 'user''s email, unique',
-  `user_zip` int(11) NOT NULL,
+  `user_location` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `user_location_lat` float(10,6) NOT NULL,
   `user_location_long` float(10,6) NOT NULL,
   `nest_username` varchar(64) COLLATE utf8_unicode_ci NOT NULL COMMENT 'nest user name, unique',
