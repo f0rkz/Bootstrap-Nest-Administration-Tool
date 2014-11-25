@@ -102,6 +102,18 @@ $(function () {
             threshold: <?= $freezing_point; ?>,
 	    	negativeColor: 'blue',
             tooltip: { valueSuffix: '°' },
+            events: {
+                hide: function () {
+                    this.update({
+                        name: 'Outside Temperature (below freezing)'
+                    });
+                },
+                show: function () {
+                    this.update({
+                        name: 'Outside Temperature (<span style="color:blue">below freezing</span>)',
+                    });
+                }
+            },
             data: [<?php echo join($data_outside_temp, ','); ?>]
         }, {
             name: 'Thermostat Setpoint',
