@@ -14,7 +14,7 @@ while ( $row = mysqli_fetch_array($get_users))
 {
 	$user_id = $row['user_id'];
 	$user_location = $row['user_location'];
-	if ($user_location == 0)
+	if (empty($user_location))
 	{
 		$user_location = 30303;
 	}
