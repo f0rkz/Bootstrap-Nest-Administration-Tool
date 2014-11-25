@@ -63,10 +63,20 @@ $(function () {
         yAxis:[{
             title: {
                 text: 'Temperature °<?= $scale; ?>' 
-        }}, {
+            },
+            labels: {
+                formatter: function() {
+                return this.value + '°';
+            }}
+
+        }, {
        	    title: {
                 text: 'Relative Humidity %'
             },
+            labels: {
+                formatter: function() {
+                return this.value + '%';
+            }},
 	    	opposite: false
 	    }],	    
         plotOptions: {
@@ -83,6 +93,7 @@ $(function () {
             name: 'Inside Temperature',
 	    	type: 'spline',
 	    	color: 'orange',
+            tooltip: { valueSuffix: '°' },
             data: [<?php echo join($data_temp, ','); ?>]
         }, {
             name: 'Outside Temperature (<span style="color:blue">below freezing</span>)',
@@ -90,24 +101,28 @@ $(function () {
 	    	color: 'red',
             threshold: <?= $freezing_point; ?>,
 	    	negativeColor: 'blue',
+            tooltip: { valueSuffix: '°' },
             data: [<?php echo join($data_outside_temp, ','); ?>]
         }, {
             name: 'Thermostat Setpoint',
 	    	type: 'line',
             step: 'left',
 	    	color: '#50B432',
+            tooltip: { valueSuffix: '°' },        
             dataLabels: {align: 'left', enabled: true},
             data: [<?php echo join($data_setpoint, ','); ?>]
         }, {
             name: 'Inside Humidity',
 	    	type: 'spline',
 	    	yAxis: 1,
+            tooltip: { valueSuffix: '%' },
             data: [<?php echo join($data_humidity, ','); ?>]
         }, {
         	name: 'Outside Humidity',
 	    	type: 'spline',
 	    	color: '#6AF9C4',
 	    	yAxis: 1,
+            tooltip: { valueSuffix: '%' },
         	data: [<?php echo join($data_outside_humidity, ','); ?>]
         }, {
             name: 'Cooling',
@@ -116,6 +131,7 @@ $(function () {
 	    	type: 'area',
 			threshold: <?= $base_room_temp; ?>,
 	    	fillOpacity: 0.5,
+            tooltip: { valueSuffix: '°' },
 	    	color: '#058DC7',
             data: [<?php echo join($data_cooling, ','); ?>]
         }, {
@@ -125,6 +141,7 @@ $(function () {
 	    	type: 'area',
 	    	threshold: <?= $base_room_temp; ?>,
 	    	fillOpacity: 0.5,
+            tooltip: { valueSuffix: '°' },
 	    	color: '#FF9655',
             data: [<?php echo join($data_heating, ','); ?>]
         }],
