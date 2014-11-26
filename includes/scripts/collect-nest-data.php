@@ -26,7 +26,7 @@ while ( $row = $users_statement->fetch())
 	}
 	$nest_username = $row['nest_username'];
 	$nest_password = $row['nest_password'];
-	$nest_password_decrypt = trim(decrypt($nest_password, ENCRYPTION_KEY));
+	$nest_password_decrypt = trim(decrypt(utf8_decode($nest_password), ENCRYPTION_KEY));
 
 	// User and pass configuration
 	define('USERNAME', $nest_username);
