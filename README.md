@@ -6,7 +6,7 @@ Features
 -------------
 *	Intuitive graphing using Highcharts Highstocks graphing tools
 
-http://git.f0rkznet.net/f0rkz/bootstrap-nest-administration-tool/raw/master/nest-graphs.png
+https://raw.githubusercontent.com/f0rkz/Bootstrap-Nest-Administration-Tool/master/nest-graphs.png
 
 *	Control panel to set temperatures and tweak settings
 
