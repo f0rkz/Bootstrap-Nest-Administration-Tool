@@ -212,22 +212,18 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 	{
 		$data_js = new Template("../includes/templates/data.js.tpl");
 
-		$db_connect = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-		$user_id_query = "select * from users where user_name = \"$username\"";
-		$get_user_id = mysqli_query($db_connect, $user_id_query);
-		while ( $user_row = mysqli_fetch_array($get_user_id))
+		$db_connect = DBConnect::getConnection();
+    $user_id_statement = $db_connect->prepare('select * from users where user_name = :user_name');
+    $user_id_statement->execute(array('user_name' => $username));
+		while ( $user_row = $user_id_statement->fetch())
 		{
 			$user_id = $user_row['user_id'];
 			$scale = $user_row['scale'];
 		}
 
-		$query = "select * from data where user_id = \"$user_id\" ORDER BY timestamp";
+    $data_statement = $db_connect->prepare("select * from data where user_id = :user_id ORDER BY timestamp");
+    $data_statement->execute(array('user_id' => $user_id));
 
-		$result = mysqli_query($db_connect, $query);
-		if (mysqli_connect_errno())
-		{
-	        echo "Failed to connect to MySQL: " . mysqli_connect_error();
-		}
 		$data_temp = array();
 		$data_humidity = array();
 		$data_setpoint = array();
@@ -244,7 +240,7 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 		$last_heating = null;
 		$last_cooling = null;
 
-		while ($row = mysqli_fetch_array($result))
+		while ($row = $data_statement->fetch())
 		{
 			$timestamp = $row['timestamp'];
 			$timestamp_offset = $row['timestamp_offset'];

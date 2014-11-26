@@ -1,16 +1,22 @@
 <?php
 
+include('../classes/dbconnect.php');
 include('../classes/nest.php');
 include('../nest.conf.php');
 include('../functions/convertKelvin.php');
 include('../functions/encrypt_decrypt.php');
 
-$db_connect = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
+try {
+  $db_connect = DBConnect::getConnection();
+}
+catch(Exception $e) {
+  die('Error: ' . $e->getMessage());
+}
 
-$user_query = "select * from users";
-$get_users = mysqli_query($db_connect, $user_query);
+$users_statement = $db_connect->prepare('select * from users');
+$users_statement->execute();
 
-while ( $row = mysqli_fetch_array($get_users))
+while ( $row = $users_statement->fetch())
 {
 	$user_id = $row['user_id'];
 	$user_location = $row['user_location'];
@@ -60,16 +66,44 @@ while ( $row = mysqli_fetch_array($get_users))
 		$time_to_target = $infos->target->time_to_target;
 		$outside_temperature = convertKelvin($outside_temperature_kelvin, $scale);
 
-		$fields = "user_id=\"$user_id\", timestamp=\"$timestamp\", timestamp_offset=\"$timestamp_offset\", heating=\"$heat\", cooling=\"$ac\", target=\"$target\", current=\"$temperature\", humidity=\"$humidity\", outside_temp=\"$outside_temperature\", outside_humidity=\"$outside_humidity\"";
-		$server_sql = "INSERT INTO data SET $fields";
-		if (!mysqli_query($db_connect, $server_sql))
-		{
-			die('Error: ' . mysqli_error($db_connect));
-		}
-		$update_location = "UPDATE users SET user_location_lat=\"$user_lat\",user_location_long=\"$user_long\",scale=\"$scale\" where user_id = \"$user_id\"";
-		if (!mysqli_query($db_connect, $update_location))
-		{
-			die('Error: ' . mysqli_error($db_connect));
-		}
+    $update_data_statement = $db_connect->prepare("
+      INSERT INTO data SET
+        user_id = :user_id,
+        timestamp = :timestamp,
+        timestamp_offset = :timestamp_offset,
+        heating = :heating,
+        cooling = :cooling,
+        target = :target,
+        current = :current,
+        humidity = :humidity,
+        outside_temp = :outside_temp,
+        outside_humidity = :outside_humidity
+    ");
+    $update_data_statement->execute(array(
+      'user_id' => $user_id,
+      'timestamp' => $timestamp,
+      'timestamp_offset' => $timestamp_offset,
+      'heating' => $heat,
+      'cooling' => $ac,
+      'target' => $target,
+      'current' => $temperature,
+      'humidity' => $humidity,
+      'outside_temp' => $outside_temperature,
+      'outside_humidity' => $outside_humidity,
+    ));
+
+		$update_location_statement = $db_connect->prepare("
+		  UPDATE users
+		  SET user_location_lat = :user_location_lat,
+		    user_location_long = :user_location_long,
+		    scale = :scale
+      WHERE user_id = :user_id
+		");
+    $update_location_statement->execute(array(
+      'user_location_lat' => $user_lat,
+      'user_location_long' => $user_long,
+      'scale' => $scale,
+      'user_id' => $user_id,
+    ));
 	}
 }
