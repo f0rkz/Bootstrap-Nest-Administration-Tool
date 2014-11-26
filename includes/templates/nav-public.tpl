@@ -15,7 +15,7 @@
           <ul class="nav navbar-nav navbar-right">
             <li><a href="index.php?page=login">Login</a></li>
             <li><a href="index.php?page=register">Register</a></li>
-            <li><a href="http://git.f0rkznet.net/f0rkz/bootstrap-nest-administration-tool"><i class="fa fa-git-square fa-lg"></i></a></li>
+            <li><a href="https://github.com/f0rkz/Bootstrap-Nest-Administration-Tool"><i class="fa fa-git-square fa-lg"></i></a></li>
           </ul>
         </div>
       </div>
