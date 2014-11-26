@@ -10,17 +10,19 @@ CREATE TABLE `data` (
     `humidity` tinyint unsigned NOT NULL,
     `outside_temp` numeric(7,3) NOT NULL,
     `outside_humidity` numeric(7,3) NOT NULL,
-    UNIQUE KEY `record_id` (`record_id`)
+    PRIMARY KEY (`record_id`),
+    KEY `data_user_id` (`user_id`),
+    KEY `data_timestamp` (`timestamp`)
 )
-ENGINE=MyIASM DEFAULT CHARSET=latin1;
+ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 CREATE TABLE IF NOT EXISTS `users` (
   `user_id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'auto incrementing user_id of each user, unique index',
   `user_name` varchar(64) COLLATE utf8_unicode_ci NOT NULL COMMENT 'user''s name, unique',
   `user_password_hash` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'user''s password in salted and hashed format',
   `user_email` varchar(64) COLLATE utf8_unicode_ci NOT NULL COMMENT 'user''s email, unique',
   `user_location` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  `user_location_lat` float(10,6) NOT NULL,
-  `user_location_long` float(10,6) NOT NULL,
+  `user_location_lat` decimal(10,6) NOT NULL,
+  `user_location_long` decimal(10,6) NOT NULL,
   `nest_username` varchar(64) COLLATE utf8_unicode_ci NOT NULL COMMENT 'nest user name, unique',
   `nest_password` varchar(64)COLLATE utf8_unicode_ci NOT NULL,
   `scale` varchar(10),
