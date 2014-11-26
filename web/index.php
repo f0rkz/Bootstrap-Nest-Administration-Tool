@@ -134,29 +134,43 @@ if (isset($request['page']) && $request['page'] == 'profile')
 		$username = $_SESSION['user_name'];
 
 		// Get the user's information
-		$db_connect = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-		$user_id_query = "select user_id, nest_username, user_zip from users where user_name = \"$username\"";
-		$get_user_id = mysqli_query($db_connect, $user_id_query);
-		while ( $user_row = mysqli_fetch_array($get_user_id))
-		{
-			$user_id = $user_row['user_id'];
-			$user_zip = $user_row['user_zip'];
-			$nest_username = $user_row['nest_username'];
-		}
+		$db_connect = DBConnect::getConnection();
+    $user_id_statement = $db_connect->prepare("select user_id, nest_username, user_location from users where user_name = :username");
+    $user_id_statement->execute(array(
+      'username' => $username,
+    ));
+		$user_results = $user_id_statement->fetchAll();
+    $user_row = $user_results[0];
+
+    $user_id = $user_row['user_id'];
+    $user_location = $user_row['user_location'];
+    $nest_username = $user_row['nest_username'];
+
 		if (isset($request['postsettings']) && $request['postsettings'] == 'update')
 		{
 			$nest_username = $input['nest']['username'];
 			$nest_password = $input['nest']['password'];
-			$nest_zipcode = $input['nest']['location'];
+			$nest_location = $input['nest']['location'];
 
-			$nest_password_encrypt = encrypt($nest_password, ENCRYPTION_KEY);
+			$nest_password_encrypt = utf8_encode(encrypt($nest_password, ENCRYPTION_KEY));
 
-			$fields = "nest_username=\"$nest_username\", nest_password=\"$nest_password_encrypt\", user_zip=\"$nest_zipcode\"";
-			$server_sql = "UPDATE users SET $fields WHERE user_id = $user_id";
-			mysqli_query($db_connect, $server_sql);
+      $update_statement = $db_connect->prepare("
+        UPDATE users
+        SET nest_username = :nest_username,
+          nest_password = :nest_password,
+          user_location = :user_location
+        WHERE user_id = :user_id
+      ");
+      $update_statement->execute(array(
+        'nest_username' => $nest_username,
+        'nest_password' => $nest_password_encrypt,
+        'user_location' => $nest_location,
+        'user_id' => $user_id,
+      ));
 
-			$user_zip = $nest_zipcode;
+			$user_location = $nest_location;
 
+      $message = isset($message) ? $message : '';
        		$success_message = $message . "Updated user preferences";
    			$tpl_success = new Template("../includes/templates/success.tpl");
    			$tpl_success->set("success_text", $success_message);
@@ -174,7 +188,7 @@ if (isset($request['page']) && $request['page'] == 'profile')
 		$tpl_nav->set('nav_brand_name', $nav_brand_name);
 
 		$tpl_profile->set('nest_username', $nest_username);
-		$tpl_profile->set('zipcode', $user_zip );
+		$tpl_profile->set('location', $user_location);
 		echo $tpl_head->fetch();
 		echo $tpl_nav->fetch();
 		echo $tpl_profile->fetch();
@@ -198,22 +212,18 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 	{
 		$data_js = new Template("../includes/templates/data.js.tpl");
 
-		$db_connect = mysqli_connect(DB_HOST, DB_USER, DB_PASS, DB_NAME);
-		$user_id_query = "select * from users where user_name = \"$username\"";
-		$get_user_id = mysqli_query($db_connect, $user_id_query);
-		while ( $user_row = mysqli_fetch_array($get_user_id))
+		$db_connect = DBConnect::getConnection();
+    $user_id_statement = $db_connect->prepare('select * from users where user_name = :user_name');
+    $user_id_statement->execute(array('user_name' => $username));
+		while ( $user_row = $user_id_statement->fetch())
 		{
 			$user_id = $user_row['user_id'];
 			$scale = $user_row['scale'];
 		}
 
-		$query = "select * from data where user_id = \"$user_id\" ORDER BY timestamp";
+    $data_statement = $db_connect->prepare("select * from data where user_id = :user_id ORDER BY timestamp");
+    $data_statement->execute(array('user_id' => $user_id));
 
-		$result = mysqli_query($db_connect, $query);
-		if (mysqli_connect_errno())
-		{
-	        echo "Failed to connect to MySQL: " . mysqli_connect_error();
-		}
 		$data_temp = array();
 		$data_humidity = array();
 		$data_setpoint = array();
@@ -230,7 +240,7 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 		$last_heating = null;
 		$last_cooling = null;
 
-		while ($row = mysqli_fetch_array($result))
+		while ($row = $data_statement->fetch())
 		{
 			$timestamp = $row['timestamp'];
 			$timestamp_offset = $row['timestamp_offset'];

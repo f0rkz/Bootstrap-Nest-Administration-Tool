@@ -8,6 +8,7 @@ Template class file - "class_template.php"
 ================================================
 */
 
+include('../includes/classes/dbconnect.php');
 include('../includes/classes/class_template.php');
 include('../includes/classes/nest.php');
 include('../includes/classes/login.php');
