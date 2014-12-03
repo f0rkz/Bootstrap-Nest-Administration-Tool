@@ -4,14 +4,13 @@ $(function () {
             timezoneOffset: <?= $date_offset; ?> * 60
         }
     });
-    $('#chart_nest_stats').highcharts('StockChart', {
+    $('#chart_nest_stats_<?= $device_serial_number ?>').highcharts('StockChart', {
         chart_nest_stats: {
             type: 'line',
-            zoomType: 'xy',
-            renderTo: chart_nest_stats
+            zoomType: 'xy'
         },
         title: {
-            text: 'Nest Temperature Statistics'
+            text: 'Nest Temp for <?= $device_name ?>'
         },
         credits: {
         	enabled: false
@@ -41,10 +40,14 @@ $(function () {
     		count: 12,
     		text: '12h'
     	}, {
-    		type: 'day',
-    		count: 1,
-    		text: '1d'
-		}, {
+            type: 'day',
+            count: 1,
+            text: '1d'
+        }, {
+            type: 'day',
+            count: 7,
+            text: '1w'
+        }, {
 			type: 'month',
 			count: 1,
 			text: '1m'
