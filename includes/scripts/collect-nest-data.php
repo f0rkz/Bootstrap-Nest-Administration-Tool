@@ -28,10 +28,6 @@ while ( $row = $users_statement->fetch())
 	$nest_password = $row['nest_password'];
 	$nest_password_decrypt = trim(decrypt(utf8_decode($nest_password), ENCRYPTION_KEY));
 
-	// User and pass configuration
-	define('USERNAME', $nest_username);
-	define('PASSWORD', $nest_password_decrypt);
-
 	// Open weathermap api call
 	$weather_json = "http://api.openweathermap.org/data/2.5/weather?q=" . urlencode($user_location);
 	$weather_array = json_decode(file_get_contents($weather_json));
@@ -53,7 +49,7 @@ while ( $row = $users_statement->fetch())
 
 	if ($weather_array)
 	{
-		$nest = new Nest();
+		$nest = new Nest($nest_username, $nest_password_decrypt);
 		$nest_devices = $nest->getDevices();
 
 		foreach($nest_devices as $device)
