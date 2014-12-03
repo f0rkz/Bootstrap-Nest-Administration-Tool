@@ -1,10 +1,10 @@
 <?php
 
-include('../includes/classes/dbconnect.php');
-include('../includes/classes/nest.php');
-include('../includes/nest.conf.php');
-include('../includes/functions/convertKelvin.php');
-include('../includes/functions/encrypt_decrypt.php');
+include('../classes/dbconnect.php');
+include('../classes/nest.php');
+include('../nest.conf.php');
+include('../functions/convertKelvin.php');
+include('../functions/encrypt_decrypt.php');
 
 try {
   $db_connect = DBConnect::getConnection();
