@@ -28,12 +28,10 @@ while ( $row = $users_statement->fetch())
 	$nest_password = $row['nest_password'];
 	$nest_password_decrypt = trim(decrypt(utf8_decode($nest_password), ENCRYPTION_KEY));
 
-	// Open weathermap api call
-	// Get a latitude and longitude from openweathermap for mapping to timezone offset
-	$weather_json = "http://api.openweathermap.org/data/2.5/weather?q=" . urlencode($user_location);
-	$weather_array = json_decode(file_get_contents($weather_json));
-	$user_lat = $weather_array->coord->lat;
-	$user_long = $weather_array->coord->lon;
+	$geocord_json = "http://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($user_location) . "&sensor=false";
+	$geocord_array = json_decode(file_get_contents($geocord_json));
+	$user_lat = $geocord_array->results['0']->geometry->location->lat;
+	$user_long = $geocord_array->results['0']->geometry->location->lng;
 
 	$timestamp = time();
 
@@ -47,7 +45,7 @@ while ( $row = $users_statement->fetch())
 	//$local_time = $timestamp + $dst_offset + $raw_offset;
 
 
-	if ($weather_array)
+	if ($geocord_array)
 	{
 		$nest = new Nest($nest_username, $nest_password_decrypt);
 		$nest_devices = $nest->getDevices();
