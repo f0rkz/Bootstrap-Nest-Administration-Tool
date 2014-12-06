@@ -258,7 +258,7 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 
 		$db_connect = DBConnect::getConnection();
 	    $devices_statement = $db_connect->prepare('
-	    	SELECT devices.device_serial_number, devices.device_name, users.user_id 
+	    	SELECT devices.device_serial_number, devices.device_name, users.user_id, users.scale
 	    	FROM users, devices 
 	    	WHERE users.user_id = devices.user_id 
 	    	AND users.user_name = :user_name');
@@ -272,11 +272,10 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 			$scale = $user_row['scale'];
 
 		    $data_statement = $db_connect->prepare("
-		    	select data.*, devices.device_name 
-		    	from data, devices 
-		    	where devices.device_serial_number = data.device_serial_number
-		    	AND devices.user_id = :user_id 
-		    	AND devices.device_serial_number = :device_serial_number
+		    	SELECT data.*
+		    	FROM data
+		    	WHERE data.user_id = :user_id 
+		    	AND data.device_serial_number = :device_serial_number
 		    	ORDER BY timestamp");
 		    $data_statement->execute(array('user_id' => $user_id, 'device_serial_number' => $device_serial_number));
 
