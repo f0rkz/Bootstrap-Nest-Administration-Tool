@@ -326,31 +326,31 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 
 				$timestamp *= 1000; // convert from Unix timestamp to JavaScript time
 
-				if ($last_temp == null || $last_temp != $temp)
+				if ($last_temp === null || $last_temp != $temp)
 				{
 					$last_temp = $temp;
 					$data_temp[] .= "[$timestamp, $temp]";	
 				}
 
-				if ($last_humidity == null || $last_humidity != $humidity)
+				if ($last_humidity === null || $last_humidity != $humidity)
 				{
 					$last_humidity = $humidity;
 					$data_humidity[] .= "[$timestamp, $humidity]";	
 				}
 
-				if ($last_outside_temp == null || $last_outside_temp != $outside_temp)
+				if ($last_outside_temp === null || $last_outside_temp != $outside_temp)
 				{
 					$last_outside_temp = $outside_temp;
 					$data_outside_temp[] .= "[$timestamp, $outside_temp]";	
 				}
 
-				if ($last_outside_humidity == null || $last_outside_humidity != $outside_humidity)
+				if ($last_outside_humidity === null || $last_outside_humidity != $outside_humidity)
 				{
 					$last_outside_humidity = $outside_humidity;
 					$data_outside_humidity[] .= "[$timestamp, $outside_humidity]";	
 				}
 
-				if ($last_setpoint == null || $last_setpoint != $setpoint)
+				if ($last_setpoint === null || $last_setpoint != $setpoint)
 				{
 					if ($setpoint == "null" && $last_timestamp != null)
 					{
@@ -362,7 +362,7 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 					$data_setpoint[] .= "[$timestamp, $setpoint]";
 				}
 
-				if ($last_heating == null || $last_heating != $heating)
+				if ($last_heating === null || $last_heating != $heating)
 				{
 					if ($heating == "null" && $last_timestamp != null)
 					{
@@ -374,7 +374,7 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 					$data_heating[] .= "[$timestamp, $heating]";
 				}
 
-				if ($last_cooling == null || $last_cooling != $cooling)
+				if ($last_cooling === null || $last_cooling != $cooling)
 				{
 					if ($cooling == "null" && $last_timestamp != null)
 					{
