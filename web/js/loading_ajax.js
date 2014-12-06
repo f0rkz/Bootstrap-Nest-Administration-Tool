@@ -7,3 +7,7 @@ jQuery.ajaxSetup({
   },
   success: function() {}
 });
+
+$(function () {
+  $('[data-toggle="tooltip"]').tooltip()
+})

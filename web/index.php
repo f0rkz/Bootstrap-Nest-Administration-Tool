@@ -258,7 +258,7 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 
 		$db_connect = DBConnect::getConnection();
 	    $devices_statement = $db_connect->prepare('
-	    	SELECT devices.device_serial_number, devices.device_name, users.user_id 
+	    	SELECT devices.device_serial_number, devices.device_name, users.user_id, users.scale
 	    	FROM users, devices 
 	    	WHERE users.user_id = devices.user_id 
 	    	AND users.user_name = :user_name');
@@ -272,11 +272,10 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 			$scale = $user_row['scale'];
 
 		    $data_statement = $db_connect->prepare("
-		    	select data.*, devices.device_name 
-		    	from data, devices 
-		    	where devices.device_serial_number = data.device_serial_number
-		    	AND devices.user_id = :user_id 
-		    	AND devices.device_serial_number = :device_serial_number
+		    	SELECT data.*
+		    	FROM data
+		    	WHERE data.user_id = :user_id 
+		    	AND data.device_serial_number = :device_serial_number
 		    	ORDER BY timestamp");
 		    $data_statement->execute(array('user_id' => $user_id, 'device_serial_number' => $device_serial_number));
 
@@ -327,31 +326,31 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 
 				$timestamp *= 1000; // convert from Unix timestamp to JavaScript time
 
-				if ($last_temp == null || $last_temp != $temp)
+				if ($last_temp === null || $last_temp != $temp)
 				{
 					$last_temp = $temp;
 					$data_temp[] .= "[$timestamp, $temp]";	
 				}
 
-				if ($last_humidity == null || $last_humidity != $humidity)
+				if ($last_humidity === null || $last_humidity != $humidity)
 				{
 					$last_humidity = $humidity;
 					$data_humidity[] .= "[$timestamp, $humidity]";	
 				}
 
-				if ($last_outside_temp == null || $last_outside_temp != $outside_temp)
+				if ($last_outside_temp === null || $last_outside_temp != $outside_temp)
 				{
 					$last_outside_temp = $outside_temp;
 					$data_outside_temp[] .= "[$timestamp, $outside_temp]";	
 				}
 
-				if ($last_outside_humidity == null || $last_outside_humidity != $outside_humidity)
+				if ($last_outside_humidity === null || $last_outside_humidity != $outside_humidity)
 				{
 					$last_outside_humidity = $outside_humidity;
 					$data_outside_humidity[] .= "[$timestamp, $outside_humidity]";	
 				}
 
-				if ($last_setpoint == null || $last_setpoint != $setpoint)
+				if ($last_setpoint === null || $last_setpoint != $setpoint)
 				{
 					if ($setpoint == "null" && $last_timestamp != null)
 					{
@@ -363,7 +362,7 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 					$data_setpoint[] .= "[$timestamp, $setpoint]";
 				}
 
-				if ($last_heating == null || $last_heating != $heating)
+				if ($last_heating === null || $last_heating != $heating)
 				{
 					if ($heating == "null" && $last_timestamp != null)
 					{
@@ -375,7 +374,7 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 					$data_heating[] .= "[$timestamp, $heating]";
 				}
 
-				if ($last_cooling == null || $last_cooling != $cooling)
+				if ($last_cooling === null || $last_cooling != $cooling)
 				{
 					if ($cooling == "null" && $last_timestamp != null)
 					{
