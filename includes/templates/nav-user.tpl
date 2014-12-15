@@ -12,7 +12,7 @@
           <ul class="nav navbar-nav">
             <li><a href="index.php">Graphs</a></li>
             <li><a href="index.php?page=profile">Settings</a></li>
-            <li><a href="index.php#">Even more stuff</a></li>
+            <li><a href="index.php#">Nest Control Panel</a></li>
           </ul>
 
           <ul class="nav navbar-nav navbar-right">

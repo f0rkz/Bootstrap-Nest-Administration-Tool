@@ -1,5 +1,6 @@
 CREATE TABLE `data` (
     `record_id` int(11) NOT NULL AUTO_INCREMENT,
+    `device_serial_number` varchar(16) CHARACTER SET utf8mb4 DEFAULT NULL,
     `timestamp` int(5) NOT NULL,
     `timestamp_offset` int(5) NOT NULL,
     `user_id` int(11) NOT NULL,
@@ -30,3 +31,10 @@ CREATE TABLE IF NOT EXISTS `users` (
   UNIQUE KEY `user_name` (`user_name`),
   UNIQUE KEY `user_email` (`user_email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='user data';
+CREATE TABLE `devices` (
+  `user_id` int(11) DEFAULT NULL,
+  `device_serial_number` varchar(20) NOT NULL DEFAULT '',
+  `device_location` varchar(20) DEFAULT NULL,
+  `device_name` varchar(20) DEFAULT NULL,
+  PRIMARY KEY (`device_serial_number`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8;
