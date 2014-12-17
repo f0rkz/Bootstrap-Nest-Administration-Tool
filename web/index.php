@@ -155,7 +155,7 @@ if (isset($request['page']) && $request['page'] == 'profile')
     $user_id_statement->execute(array(
       'username' => $username,
     ));
-		$user_results = $user_id_statement->fetchAll();
+	$user_results = $user_id_statement->fetchAll();
     $user_row = $user_results[0];
 
     $user_id = $user_row['user_id'];
@@ -170,52 +170,70 @@ if (isset($request['page']) && $request['page'] == 'profile')
 
 			$nest_password_encrypt = utf8_encode(encrypt($nest_password, ENCRYPTION_KEY));
 
-      $update_statement = $db_connect->prepare("
-        UPDATE users
-        SET nest_username = :nest_username,
-          nest_password = :nest_password,
-          user_location = :user_location
-        WHERE user_id = :user_id
-      ");
-      $update_statement->execute(array(
-        'nest_username' => $nest_username,
-        'nest_password' => $nest_password_encrypt,
-        'user_location' => $nest_location,
-        'user_id' => $user_id,
-      ));
+//////////////
+			$geocord_json = "http://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($user_location) . "&sensor=false";
+			$geocord_array = json_decode(file_get_contents($geocord_json));
+			$user_lat = $geocord_array->results['0']->geometry->location->lat;
+			$user_long = $geocord_array->results['0']->geometry->location->lng;
 
-		define('USERNAME', $nest_username);
-		define('PASSWORD', $nest_password);
-		$nest = new Nest();
-		$nest_devices = $nest->getDevices(); 
+			$timestamp = time();
 
-		foreach($nest_devices as $device)
-		{
-		  $device_info = $nest->getDeviceInfo($device);
-		  
-		  $insert_statement = $db_connect->prepare("
-	        INSERT INTO devices
-	        SET device_serial_number = :device_serial_number,
-	          user_id = :user_id,
-	          device_location = :device_location,
-	          device_name = :device_name
-	      ");
-	      $insert_statement->execute(array(
-	        'device_serial_number' => $device,
-	        'user_id' => $user_id,
-	        'device_location' => $nest_location,
-	        'device_name' => $device_info->name,
-	      ));
-		}
+			// Google maps api URL
+			// This is required to get the timezone offset from the current user's location
+			$google_json = "https://maps.googleapis.com/maps/api/timezone/json?location=" . $user_lat . "," . $user_long . "&timestamp=" . $timestamp;
+			$google_time = json_decode(file_get_contents($google_json));
+			$dst_offset = $google_time->dstOffset;
+			$raw_offset = $google_time->rawOffset;
+			$timestamp_offset = ( $dst_offset + $raw_offset ) / 60 / 60;
+
+//////////////
+
+			$update_statement = $db_connect->prepare("
+				UPDATE users
+				SET nest_username = :nest_username,
+				  nest_password = :nest_password,
+				  user_location = :user_location
+				WHERE user_id = :user_id
+			");
+			$update_statement->execute(array(
+				'nest_username' => $nest_username,
+				'nest_password' => $nest_password_encrypt,
+				'user_location' => $nest_location,
+				'user_id' => $user_id,
+			));
+
+			define('USERNAME', $nest_username);
+			define('PASSWORD', $nest_password);
+			$nest = new Nest();
+			$nest_devices = $nest->getDevices(); 
+
+			foreach($nest_devices as $device)
+			{
+			  $device_info = $nest->getDeviceInfo($device);
+			  
+			  $insert_statement = $db_connect->prepare("
+		        INSERT INTO devices
+		        SET device_serial_number = :device_serial_number,
+		          user_id = :user_id,
+		          device_location = :device_location,
+		          device_name = :device_name
+		      ");
+		      $insert_statement->execute(array(
+		        'device_serial_number' => $device,
+		        'user_id' => $user_id,
+		        'device_location' => $nest_location,
+		        'device_name' => $device_info->name,
+		      ));
+			}
 
 
-	  $user_location = $nest_location;
+		  $user_location = $nest_location;
 
-      $message = isset($message) ? $message : '';
-       		$success_message = $message . "Updated user preferences";
-   			$tpl_success = new Template("../includes/templates/success.tpl");
-   			$tpl_success->set("success_text", $success_message);
-       	    echo $tpl_success->fetch();
+	      $message = isset($message) ? $message : '';
+	       		$success_message = $message . "Updated user preferences";
+	   			$tpl_success = new Template("../includes/templates/success.tpl");
+	   			$tpl_success->set("success_text", $success_message);
+	       	    echo $tpl_success->fetch();
 
 		}
 
@@ -258,7 +276,7 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 
 		$db_connect = DBConnect::getConnection();
 	    $devices_statement = $db_connect->prepare('
-	    	SELECT devices.device_serial_number, devices.device_name, users.user_id, users.scale
+	    	SELECT devices.device_serial_number, devices.device_name, users.user_id, users.scale, users.timestamp_offset
 	    	FROM users, devices 
 	    	WHERE users.user_id = devices.user_id 
 	    	AND users.user_name = :user_name');
@@ -270,6 +288,7 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 			$device_serial_number = $user_row['device_serial_number'];
 			$device_name =  $user_row['device_name'];
 			$scale = $user_row['scale'];
+			$timestamp_offset = $user_row['timestamp_offset'];
 
 		    $data_statement = $db_connect->prepare("
 		    	SELECT data.*
@@ -298,7 +317,6 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 			while ($row = $data_statement->fetch())
 			{
 				$timestamp = $row['timestamp'];
-				$timestamp_offset = $row['timestamp_offset'];
 				$setpoint = $row['target'];
 				$temp = $row['current'];
 				$humidity = $row['humidity'];
