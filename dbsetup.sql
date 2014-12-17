@@ -1,8 +1,7 @@
 CREATE TABLE `data` (
     `record_id` int(11) NOT NULL AUTO_INCREMENT,
-    `device_serial_number` varchar(16) CHARACTER SET utf8mb4 DEFAULT NULL,
+    `device_serial_number` varchar(16) COLLATE utf8_unicode_ci NOT NULL,
     `timestamp` int(5) NOT NULL,
-    `timestamp_offset` int(5) NOT NULL,
     `user_id` int(11) NOT NULL,
     `heating` tinyint unsigned NOT NULL,
     `cooling` tinyint unsigned NOT NULL,
@@ -24,6 +23,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `user_location` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `user_location_lat` decimal(10,6) NOT NULL,
   `user_location_long` decimal(10,6) NOT NULL,
+  `timestamp_offset` int(5) NULL,
   `nest_username` varchar(64) COLLATE utf8_unicode_ci NOT NULL COMMENT 'nest user name, unique',
   `nest_password` varchar(64)COLLATE utf8_unicode_ci NOT NULL,
   `scale` varchar(10),
