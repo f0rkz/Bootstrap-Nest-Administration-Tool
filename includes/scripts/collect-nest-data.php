@@ -1,5 +1,6 @@
 <?php
 
+error_reporting(E_ERROR);
 
 include('../classes/dbconnect.php');
 include('../classes/nest.php');

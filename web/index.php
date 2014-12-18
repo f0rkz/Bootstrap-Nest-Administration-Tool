@@ -187,7 +187,6 @@ if (isset($request['page']) && $request['page'] == 'profile')
 			$timestamp_offset = ( $dst_offset + $raw_offset ) / 60 / 60;
 			//////////////
 
-
 			$update_statement = $db_connect->prepare("
 				UPDATE users
 				SET nest_username = :nest_username,
