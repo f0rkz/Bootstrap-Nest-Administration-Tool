@@ -22,7 +22,7 @@ $(function () {
             minTickInterval: 1 * 3600 * 1000,
         },
 	    rangeSelector: {
-	    	selected: 1,
+	    	selected: 3,
 	    	buttons: [{
 		    type: 'hour',
     		count: 1,
