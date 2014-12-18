@@ -170,7 +170,7 @@ if (isset($request['page']) && $request['page'] == 'profile')
 
 			$nest_password_encrypt = utf8_encode(encrypt($nest_password, ENCRYPTION_KEY));
 
-//////////////
+			////////////// identify user's time zone
 			$geocord_json = "http://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($user_location) . "&sensor=false";
 			$geocord_array = json_decode(file_get_contents($geocord_json));
 			$user_lat = $geocord_array->results['0']->geometry->location->lat;
@@ -185,20 +185,22 @@ if (isset($request['page']) && $request['page'] == 'profile')
 			$dst_offset = $google_time->dstOffset;
 			$raw_offset = $google_time->rawOffset;
 			$timestamp_offset = ( $dst_offset + $raw_offset ) / 60 / 60;
+			//////////////
 
-//////////////
 
 			$update_statement = $db_connect->prepare("
 				UPDATE users
 				SET nest_username = :nest_username,
 				  nest_password = :nest_password,
-				  user_location = :user_location
+				  user_location = :user_location,				  
+				  timestamp_offset = :timestamp_offset,
 				WHERE user_id = :user_id
 			");
 			$update_statement->execute(array(
 				'nest_username' => $nest_username,
 				'nest_password' => $nest_password_encrypt,
 				'user_location' => $nest_location,
+				'timestamp_offset' => $timestamp_offset,
 				'user_id' => $user_id,
 			));
 
