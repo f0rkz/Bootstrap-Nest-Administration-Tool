@@ -213,7 +213,7 @@ if (isset($request['page']) && $request['page'] == 'profile')
 			  $device_info = $nest->getDeviceInfo($device);
 			  
 			  $insert_statement = $db_connect->prepare("
-		        INSERT INTO devices
+		        REPLACE INTO devices
 		        SET device_serial_number = :device_serial_number,
 		          user_id = :user_id,
 		          device_location = :device_location,
