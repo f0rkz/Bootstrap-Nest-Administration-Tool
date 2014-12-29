@@ -192,7 +192,7 @@ if (isset($request['page']) && $request['page'] == 'profile')
 				SET nest_username = :nest_username,
 				  nest_password = :nest_password,
 				  user_location = :user_location,				  
-				  timestamp_offset = :timestamp_offset,
+				  timestamp_offset = :timestamp_offset
 				WHERE user_id = :user_id
 			");
 			$update_statement->execute(array(
