@@ -70,8 +70,9 @@ $(function () {
             labels: {
                 formatter: function() {
                 return this.value + '°';
-            }}
-
+            }},
+            height: '80%',
+            lineWidth: 2
         }, {
        	    title: {
                 text: 'Relative Humidity %'
@@ -80,8 +81,23 @@ $(function () {
                 formatter: function() {
                 return this.value + '%';
             }},
-	    	opposite: false
-	    }],	    
+	    	    opposite: false,
+            height: '80%',
+            lineWidth: 2
+	      }, {
+            title: {
+                text: 'Battery'
+            },
+            labels: {
+                formatter: function() {
+                return this.value + ' V';
+            }},
+            floor: 0,
+            height: '15%',
+            top: '85%',
+            offset: 0,
+            lineWidth: 2
+	      }],
         plotOptions: {
             spline: {
                 events: {
@@ -169,6 +185,13 @@ $(function () {
             tooltip: { valueSuffix: '°' },
 	    	color: '#FF9655',
             data: [<?php echo join($data_heating, ','); ?>]
+        }, {
+            name: 'Voltage',
+            type: 'spline',
+            color: '#ff0000',
+            yAxis: 2,
+            tooltip: { valueSuffix: ' V' },
+            data: [<?php echo join($data_battery_level, ','); ?>]
         }],
         legend: {
 			enabled: true,

@@ -63,6 +63,8 @@ while ( $row = $users_statement->fetch())
 		$nest_location = $infos->where;
 		$device_name = $infos->name;
 
+		$battery_level = $infos->current_state->battery_level;
+
 		// Outside weather pulled from the nest class
 		$outside_humidity = $weather_nest->outside_humidity;
 		$outside_temperature = $weather_nest->outside_temperature;
@@ -111,6 +113,7 @@ while ( $row = $users_statement->fetch())
 	        humidity = :humidity,
 	        outside_temp = :outside_temp,
 	        outside_humidity = :outside_humidity,
+	        battery_level = :battery_level,
 	        device_serial_number = :device_serial_number
 	    ");
 	    $update_data_statement->execute(array(
@@ -123,6 +126,7 @@ while ( $row = $users_statement->fetch())
 	      'humidity' => $humidity,
 	      'outside_temp' => $outside_temperature,
 	      'outside_humidity' => $outside_humidity,
+				'battery_level' => $battery_level,
 	      'device_serial_number' => $device_serial_number
 	    ));
 	}	
