@@ -304,12 +304,14 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 			$data_setpoint = array();
 			$data_outside_temp = array();
 			$data_outside_humidity = array();
+			$data_battery_level = array();
 			$data_cooling = array();
 			$data_heating = array();
 			$last_temp = null;
 			$last_humidity = null;
 			$last_outside_temp = null;
 			$last_outside_humidity = null;
+			$last_battery_level = null;
 			$last_setpoint = null;
 			$last_timestamp = null;
 			$last_heating = null;
@@ -323,6 +325,7 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 				$humidity = $row['humidity'];
 				$outside_temp = $row['outside_temp'];
 				$outside_humidity = $row['outside_humidity'];
+				$battery_level = $row['battery_level'];
 
 				// F - round temperatureto nearest degree
 				// C - round temperature to nearest 0.5
@@ -369,6 +372,12 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 					$data_outside_humidity[] .= "[$timestamp, $outside_humidity]";	
 				}
 
+				if ($last_battery_level === null || $last_battery_level != $battery_level)
+				{
+					$last_battery_level = $battery_level;
+					$data_battery_level[] .= "[$timestamp, $battery_level]";
+				}
+
 				if ($last_setpoint === null || $last_setpoint != $setpoint)
 				{
 					if ($setpoint == "null" && $last_timestamp != null)
@@ -412,7 +421,8 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 			$data_temp[] .= "[$timestamp, $temp]";	
 			$data_humidity[] .= "[$timestamp, $humidity]";	
 			$data_outside_temp[] .= "[$timestamp, $outside_temp]";	
-			$data_outside_humidity[] .= "[$timestamp, $outside_humidity]";	
+			$data_outside_humidity[] .= "[$timestamp, $outside_humidity]";
+			$data_battery_level[] .= "[$timestamp, $battery_level]";
 			$data_setpoint[] .= "[$timestamp, $setpoint]";
 			$data_heating[] .= "[$timestamp, $heating]";
 			$data_cooling[] .= "[$timestamp, $cooling]";
@@ -427,6 +437,7 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 			$data_js->set('data_setpoint', $data_setpoint);
 			$data_js->set('data_outside_temp', $data_outside_temp);
 			$data_js->set('data_outside_humidity', $data_outside_humidity);
+			$data_js->set('data_battery_level', $data_battery_level);
 			$data_js->set('data_cooling', $data_cooling);
 			$data_js->set('data_heating', $data_heating);
 			$data_js->set('scale', $scale);
