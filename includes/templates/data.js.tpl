@@ -86,7 +86,7 @@ $(function () {
             lineWidth: 2
 	      }, {
             title: {
-                text: 'Voltage'
+                text: 'Battery'
             },
             labels: {
                 formatter: function() {
