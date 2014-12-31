@@ -70,8 +70,9 @@ $(function () {
             labels: {
                 formatter: function() {
                 return this.value + '°';
-            }}
-
+            }},
+            height: '70%',
+            lineWidth: 2
         }, {
        	    title: {
                 text: 'Relative Humidity %'
@@ -80,8 +81,18 @@ $(function () {
                 formatter: function() {
                 return this.value + '%';
             }},
-	    	opposite: false
-	    }],	    
+	    	    opposite: false,
+            height: '70%',
+            lineWidth: 2
+	      }, {
+            title: {
+                text: 'Voltage'
+            },
+            height: '25%',
+            top: '75%',
+            offset: 0,
+            lineWidth: 2
+	      }],
         plotOptions: {
             spline: {
                 events: {
