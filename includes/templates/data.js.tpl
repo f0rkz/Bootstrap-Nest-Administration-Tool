@@ -88,6 +88,11 @@ $(function () {
             title: {
                 text: 'Voltage'
             },
+            labels: {
+                formatter: function() {
+                return this.value + ' V';
+            }},
+            floor: 0,
             height: '15%',
             top: '85%',
             offset: 0,
@@ -185,7 +190,8 @@ $(function () {
             type: 'spline',
             color: '#ff0000',
             yAxis: 2,
-            data: [<?php echo join($battery_level, ','); ?>]
+            tooltip: { valueSuffix: ' V' },
+            data: [<?php echo join($data_battery_level, ','); ?>]
         }],
         legend: {
 			enabled: true,
