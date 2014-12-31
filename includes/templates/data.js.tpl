@@ -180,6 +180,12 @@ $(function () {
             tooltip: { valueSuffix: '°' },
 	    	color: '#FF9655',
             data: [<?php echo join($data_heating, ','); ?>]
+        }, {
+            name: 'Voltage',
+            type: 'spline',
+            color: '#ff0000',
+            yAxis: 2,
+            data: [<?php echo join($battery_level, ','); ?>]
         }],
         legend: {
 			enabled: true,
