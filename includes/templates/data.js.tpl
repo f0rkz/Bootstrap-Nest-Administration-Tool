@@ -71,7 +71,7 @@ $(function () {
                 formatter: function() {
                 return this.value + '°';
             }},
-            height: '70%',
+            height: '80%',
             lineWidth: 2
         }, {
        	    title: {
@@ -82,14 +82,14 @@ $(function () {
                 return this.value + '%';
             }},
 	    	    opposite: false,
-            height: '70%',
+            height: '80%',
             lineWidth: 2
 	      }, {
             title: {
                 text: 'Voltage'
             },
-            height: '25%',
-            top: '75%',
+            height: '15%',
+            top: '85%',
             offset: 0,
             lineWidth: 2
 	      }],
