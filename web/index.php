@@ -200,7 +200,7 @@ if (isset($request['page']) && $request['page'] == 'profile')
 				'nest_password' => $nest_password_encrypt,
 				'user_location' => $nest_location,
 				'timestamp_offset' => $timestamp_offset,
-				'user_id' => $user_id,
+				'user_id' => $user_id
 			));
 
 			define('USERNAME', $nest_username);
