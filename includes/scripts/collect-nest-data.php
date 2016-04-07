@@ -20,6 +20,9 @@ $users_statement->execute();
 
 while ( $row = $users_statement->fetch())
 {
+  # Trying to stop the API throttling. Hopefully this sleep and the one below
+  # will help!
+  sleep(10);
 	$user_id = $row['user_id'];
 	$user_location = $row['user_location'];
 	if (empty($user_location))
