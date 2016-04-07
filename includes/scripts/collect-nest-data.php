@@ -47,9 +47,14 @@ while ( $row = $users_statement->fetch())
 	$timestamp_offset = ( $dst_offset + $raw_offset ) / 60 / 60;
 	//$local_time = $timestamp + $dst_offset + $raw_offset;
 */
-
+  try {
 	$nest = new Nest($nest_username, $nest_password_decrypt);
-	$nest_devices = $nest->getDevices();
+  }
+  catch(Exception $e) {
+    print "Error collecting data for " . $user_id . " Exception: " . $e . "\n";
+    continue;
+  }
+  $nest_devices = $nest->getDevices();
 
 	foreach($nest_devices as $device)
 	{
@@ -76,15 +81,15 @@ while ( $row = $users_statement->fetch())
 		// Current running statistics for the graph
 		$ac = $infos->current_state->ac == "" ? 0 : $infos->current_state->ac;
 		$heat = $infos->current_state->heat == "" ? 0 : $infos->current_state->heat;
-		$scale = $infos->scale;$time_to_target = $infos->target->time_to_target;			
+		$scale = $infos->scale;$time_to_target = $infos->target->time_to_target;
 
 		// if heat/cool is off API returns the away temp in an array.
 		// consisting of [low temp, high temp] - commented out line is to keep both, but for now let's just take the low temp
 		//$target = is_array($infos->target->temperature) ? implode(',', $infos->target->temperature) : round($infos->target->temperature, 1);
 		$target = is_array($infos->target->temperature) ? $infos->target->temperature[0] : round($infos->target->temperature, 1);
-		
+
 		// Queries Nest site every time for all devices in your account
-		// If you add a new Nest one day it should show up and be populated into your DB 
+		// If you add a new Nest one day it should show up and be populated into your DB
 		// and a new graph will start to be rendered without intervention
 		// INSERT IGNORE is MySQL specific
 		$insert_statement = $db_connect->prepare("
@@ -129,5 +134,6 @@ while ( $row = $users_statement->fetch())
 				'battery_level' => $battery_level,
 	      'device_serial_number' => $device_serial_number
 	    ));
-	}	
+	}
+  sleep(10);
 }
