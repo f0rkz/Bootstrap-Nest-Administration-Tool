@@ -10,6 +10,7 @@ CREATE TABLE `data` (
     `humidity` tinyint unsigned NOT NULL,
     `outside_temp` numeric(7,3) NOT NULL,
     `outside_humidity` numeric(7,3) NOT NULL,
+    `battery_level` decimal(4,3) NOT NULL,
     PRIMARY KEY (`record_id`),
     KEY `data_user_id` (`user_id`),
     KEY `data_timestamp` (`timestamp`)
