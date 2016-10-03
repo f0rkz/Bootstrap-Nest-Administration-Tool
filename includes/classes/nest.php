@@ -1,7 +1,7 @@
 <?php
 
-define('DEBUG', FALSE);
-
+define('DATE_FORMAT','Y-m-d');
+define('DATETIME_FORMAT', DATE_FORMAT . ' H:i:s');
 define('TARGET_TEMP_MODE_COOL', 'cool');
 define('TARGET_TEMP_MODE_HEAT', 'heat');
 define('TARGET_TEMP_MODE_RANGE', 'range');
@@ -101,9 +101,13 @@ class Nest {
     
     /* Getters and setters */
 
-    public function getWeather($postal_code) {
+    public function getWeather($postal_code, $country_code=NULL) {
         try {
-            $weather = $this->doGET("https://home.nest.com/api/0.1/weather/forecast/" . $postal_code);
+            $url = "https://home.nest.com/api/0.1/weather/forecast/$postal_code";
+            if (!empty($country_code)) {
+                $url .= ",$country_code";
+            }
+            $weather = $this->doGET($url);
         } catch (RuntimeException $ex) {
             // NESTAPI_ERROR_NOT_JSON_RESPONSE is kinda normal. The forecast API will often return a '502 Bad Gateway' response... meh.
             if ($ex->getCode() != NESTAPI_ERROR_NOT_JSON_RESPONSE) {
@@ -118,7 +122,7 @@ class Nest {
     }
 
     public function getUserLocations() {
-        $this->getStatus();
+        $this->prepareForGet();
         $structures = (array) $this->last_status->structure;
         $user_structures = array();
         $class_name = get_class($this);
@@ -132,7 +136,7 @@ class Nest {
                 }
             }
 
-            $weather_data = $this->getWeather($structure->postal_code);
+            $weather_data = $this->getWeather($structure->postal_code, $structure->country_code);
             $user_structures[] = (object) array(
                 'name' => isset($structure->name)?$structure->name:'',
                 'address' => !empty($structure->street_address) ? $structure->street_address : NULL,
@@ -142,7 +146,7 @@ class Nest {
                 'outside_temperature' => $weather_data->outside_temperature,
                 'outside_humidity' => $weather_data->outside_humidity,
                 'away' => $structure->away,
-                'away_last_changed' => date('Y-m-d H:i:s', $structure->away_timestamp),
+                'away_last_changed' => date(DATETIME_FORMAT, $structure->away_timestamp),
                 'thermostats' => array_map(array($class_name, 'cleanDevices'), $structure->devices),
                 'protects' => $protects,
             );
@@ -151,7 +155,7 @@ class Nest {
     }
 
     public function getDeviceSchedule($serial_number=null) {
-        $this->getStatus();
+        $this->prepareForGet();
         $serial_number = $this->getDefaultSerial($serial_number);
         $schedule_days = $this->last_status->schedule->{$serial_number}->days;
 
@@ -200,33 +204,51 @@ class Nest {
     }
 
     public function getDeviceInfo($serial_number=null) {
-        $this->getStatus();
+        $this->prepareForGet();
         $serial_number = $this->getDefaultSerial($serial_number);
-
         $topaz = isset($this->last_status->topaz) ? $this->last_status->topaz : array();
         foreach ($topaz as $protect) {
             if ($serial_number == $protect->serial_number) {
                 // The specified device is a Nest Protect
                 $infos = (object) array(
-                    'co_status' => $protect->co_status,
-                    'smoke_status' => $protect->smoke_status,
+                    'co_status' => $protect->co_status == 0 ? "OK" : $protect->co_status,
+                    'co_previous_peak' => isset($protect->co_previous_peak) ? $protect->co_previous_peak : null,
+                    'co_sequence_number' => $protect->co_sequence_number,
+                    'smoke_status' => $protect->smoke_status == 0 ? "OK" : $protect->smoke_status,
+                    'smoke_sequence_number' => $protect->smoke_sequence_number,
+                    'model' => $protect->model,
+                    'software_version' => $protect->software_version,
                     'line_power_present' => $protect->line_power_present,
                     'battery_level' => $protect->battery_level,
-                    'battery_health_state' => $protect->battery_health_state,
-                    'replace_by_date' => date('Y-m-d', $protect->replace_by_date_utc_secs),
-                    'last_update' => date('Y-m-d H:i:s', $protect->{'$timestamp'}/1000),
-                    'last_manual_test' => $protect->latest_manual_test_start_utc_secs == 0 ? NULL : date('Y-m-d H:i:s', $protect->latest_manual_test_start_utc_secs),
+                    'battery_health_state' => $protect->battery_health_state == 0 ? "OK" : $protect->battery_health_state,
+                    'wired_or_battery' => isset($protect->wired_or_battery) ? $protect->wired_or_battery : null,
+                    'born_on_date' => isset($protect->device_born_on_date_utc_secs) ? date(DATE_FORMAT, $protect->device_born_on_date_utc_secs) : null,
+                    'replace_by_date' => date(DATE_FORMAT, $protect->replace_by_date_utc_secs),
+                    'last_update' => date(DATETIME_FORMAT, $protect->{'$timestamp'}/1000),
+                    'last_manual_test' => $protect->latest_manual_test_start_utc_secs == 0 ? NULL : date(DATETIME_FORMAT, $protect->latest_manual_test_start_utc_secs),
+                    'ntp_green_led_brightness' => isset($protect->ntp_green_led_brightness) ? $protect->ntp_green_led_brightness : null,
                     'tests_passed' => array(
-                        'led'   => $protect->component_led_test_passed,
-                        'pir'   => $protect->component_pir_test_passed,
-                        'temp'  => $protect->component_temp_test_passed,
-                        'smoke' => $protect->component_smoke_test_passed,
-                        'heat'  => $protect->component_heat_test_passed,
-                        'wifi'  => $protect->component_wifi_test_passed,
-                        'als'   => $protect->component_als_test_passed,
-                        'co'    => $protect->component_co_test_passed,
-                        'us'    => $protect->component_us_test_passed,
-                        'hum'   => $protect->component_hum_test_passed,
+                        'led'       => $protect->component_led_test_passed,
+                        'pir'       => $protect->component_pir_test_passed,
+                        'temp'      => $protect->component_temp_test_passed,
+                        'smoke'     => $protect->component_smoke_test_passed,
+                        'heat'      => $protect->component_heat_test_passed,
+                        'wifi'      => $protect->component_wifi_test_passed,
+                        'als'       => $protect->component_als_test_passed,
+                        'co'        => $protect->component_co_test_passed,
+                        'us'        => $protect->component_us_test_passed,
+                        'hum'       => $protect->component_hum_test_passed,
+                        'speaker'   => isset($protect->component_speaker_test_passed) ? $protect->component_speaker_test_passed : null,
+                        'buzzer'    => isset($protect->component_buzzer_test_passed) ? $protect->component_buzzer_test_passed : null,                        
+                    ),
+                    'nest_features' => array(
+                        'night_time_promise' => !empty($protect->ntp_green_led_enable) ? $protect->ntp_green_led_enable : 0,
+                        'night_light'        => !empty($protect->night_light_enable) ? $protect->night_light_enable : 0,
+                        'auto_away'          => !empty($protect->auto_away) ? $protect->auto_away : 0,
+                        'heads_up'           => !empty($protect->heads_up_enable) ? $protect->heads_up_enable : 0,
+                        'steam_detection'    => !empty($protect->steam_detection_enable) ? $protect->steam_detection_enable : 0,
+                        'home_alarm_link'    => !empty($protect->home_alarm_link_capable) ? $protect->home_alarm_link_capable : 0,
+                        'wired_led_enable'   => !empty($protect->wired_led_enable) ? $protect->wired_led_enable : 0,                        
                     ),
                     'serial_number' => $protect->serial_number,
                     'location' => $protect->structure_id,
@@ -237,6 +259,7 @@ class Nest {
                     ),
                     'name' => !empty($protect->description) ? $protect->description : DEVICE_WITH_NO_NAME,
                     'where' => isset($this->where_map[$protect->spoken_where_id]) ? $this->where_map[$protect->spoken_where_id] : $protect->spoken_where_id,
+                    'color' => isset($protect->device_external_color) ? $protect->device_external_color : null,                    
                 );
                 return $infos;
             }
@@ -280,9 +303,11 @@ class Nest {
             'location' => $structure,
             'network' => $this->getDeviceNetworkInfo($serial_number),
             'name' => !empty($this->last_status->shared->{$serial_number}->name) ? $this->last_status->shared->{$serial_number}->name : DEVICE_WITH_NO_NAME,
+            'auto_cool' => ((int) $this->last_status->device->{$serial_number}->leaf_threshold_cool === 0) ? false : ceil($this->temperatureInUserScale((float) $this->last_status->device->{$serial_number}->leaf_threshold_cool)),
+            'auto_heat' => ((int) $this->last_status->device->{$serial_number}->leaf_threshold_heat === 1000) ? false : floor($this->temperatureInUserScale((float) $this->last_status->device->{$serial_number}->leaf_threshold_heat)),
             'where' => isset($this->last_status->device->{$serial_number}->where_id) ? isset($this->where_map[$this->last_status->device->{$serial_number}->where_id]) ? $this->where_map[$this->last_status->device->{$serial_number}->where_id] : $this->last_status->device->{$serial_number}->where_id : ""
         );
-        if($this->last_status->device->{$serial_number}->has_humidifier) {
+        if ($this->last_status->device->{$serial_number}->has_humidifier) {
           $infos->current_state->humidifier= $this->last_status->device->{$serial_number}->humidifier_state;
           $infos->target->humidity = $this->last_status->device->{$serial_number}->target_humidity;
           $infos->target->humidity_enabled = $this->last_status->device->{$serial_number}->target_humidity_enabled;
@@ -457,6 +482,10 @@ class Nest {
 
     /* Helper functions */
 
+    public function clearStatusCache() {
+        unset($this->last_status);
+    }
+
     public function getStatus($retry=TRUE) {
         $url = "/v3/mobile/" . $this->user;
         $status = $this->doGET($url);
@@ -542,12 +571,13 @@ class Nest {
     }
 
     private function getDeviceNetworkInfo($serial_number=null) {
-        $this->getStatus();
+        $this->prepareForGet();
         $serial_number = $this->getDefaultSerial($serial_number);
         $connection_info = $this->last_status->track->{$serial_number};
         return (object) array(
             'online' => $connection_info->online,
-            'last_connection' => date('Y-m-d H:i:s', $connection_info->last_connection/1000),
+            'last_connection' => date(DATETIME_FORMAT, $connection_info->last_connection/1000),
+            'last_connection_UTC' => gmdate(DATETIME_FORMAT, $connection_info->last_connection/1000),
             'wan_ip' => @$connection_info->last_ip,
             'local_ip' => $this->last_status->device->{$serial_number}->local_ip,
             'mac_address' => $this->last_status->device->{$serial_number}->mac_address
@@ -610,7 +640,8 @@ class Nest {
         $this->user = $vars['user'];
         $this->userid = $vars['userid'];
         $this->cache_expiration = $vars['cache_expiration'];
-        $this->last_status = $vars['last_status'];
+        // Let's not load this from the disk cache; otherwise, prepareForGet() would always skip getStatus()
+        // $this->last_status = $vars['last_status'];
     }
     
     private function saveCache() {
@@ -619,8 +650,7 @@ class Nest {
             'access_token' => $this->access_token,
             'user' => $this->user,
             'userid' => $this->userid,
-            'cache_expiration' => $this->cache_expiration,
-            'last_status' => @$this->last_status
+            'cache_expiration' => $this->cache_expiration
         );
         file_put_contents($this->cache_file, serialize($vars));
     }
@@ -667,23 +697,18 @@ class Nest {
             $headers[] = 'Content-length: ' . strlen($data);
         }
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        if (DEBUG) {
-            curl_setopt($ch, CURLOPT_PROXY, '127.0.0.1:8888');
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
-        } else {
-            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE); // for security this should always be set to true.
-            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);    // for security this should always be set to 2.
-            curl_setopt($ch, CURLOPT_SSLVERSION, 1);        // Nest servers now require TLSv1; won't work with SSLv2 or even SSLv3!
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, TRUE); // for security this should always be set to true.
+        curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 2);    // for security this should always be set to 2.
+        curl_setopt($ch, CURLOPT_SSLVERSION, 1);        // Nest servers now require TLSv1; won't work with SSLv2 or even SSLv3!
 
-            // Update cacert.pem (valid CA certificates list) from the cURL website once a month
-            $curl_cainfo = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'cacert.pem';
-            $last_month = time()-30*24*60*60;
-            if (!file_exists($curl_cainfo) || filemtime($curl_cainfo) < $last_month) {
-                file_put_contents($curl_cainfo, file_get_contents('http://curl.haxx.se/ca/cacert.pem'));
-            }
-            if (file_exists($curl_cainfo)) {
-                curl_setopt($ch, CURLOPT_CAINFO, $curl_cainfo);
-            }
+        // Update cacert.pem (valid CA certificates list) from the cURL website once a month
+        $curl_cainfo = sys_get_temp_dir() . DIRECTORY_SEPARATOR . 'cacert.pem';
+        $last_month = time()-30*24*60*60;
+        if (!file_exists($curl_cainfo) || filemtime($curl_cainfo) < $last_month || filesize($curl_cainfo) < 100000) {
+            file_put_contents($curl_cainfo, file_get_contents('https://curl.haxx.se/ca/cacert.pem'));
+        }
+        if (file_exists($curl_cainfo) && filesize($curl_cainfo) > 100000) {
+            curl_setopt($ch, CURLOPT_CAINFO, $curl_cainfo);
         }
         $response = curl_exec($ch);
         $info = curl_getinfo($ch);

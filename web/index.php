@@ -126,7 +126,7 @@ if ($request == null)
 
 		$db_connect = DBConnect::getConnection();
 	    $devices_statement = $db_connect->prepare('
-	    	SELECT devices.device_serial_number, devices.device_name 
+	    	SELECT devices.device_serial_number, devices.device_location, devices.device_name 
 	    	FROM users, devices 
 	    	WHERE users.user_id = devices.user_id 
 	    	AND users.user_name = :user_name');
@@ -135,6 +135,9 @@ if ($request == null)
 		{
 			$device_serial_number = $user_row['device_serial_number'];
 			$device_name = $user_row['device_name'];
+			if ($device_name == "Not Set"){
+			    $device_name = $user_row['device_location'];
+			}
 			$tpl_chart_nest_stats->set('device_serial_number', $device_serial_number);
 			$tpl_chart_nest_stats->set('device_name', $device_name);
 			echo $tpl_chart_nest_stats->fetch();	// Graph data
@@ -277,7 +280,7 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 
 		$db_connect = DBConnect::getConnection();
 	    $devices_statement = $db_connect->prepare('
-	    	SELECT devices.device_serial_number, devices.device_name, users.user_id, users.scale, users.timestamp_offset
+	    	SELECT devices.device_serial_number, devices.device_location, devices.device_name, users.user_id, users.scale, users.timestamp_offset
 	    	FROM users, devices 
 	    	WHERE users.user_id = devices.user_id 
 	    	AND users.user_name = :user_name');
@@ -288,6 +291,9 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 			$user_id = $user_row['user_id'];
 			$device_serial_number = $user_row['device_serial_number'];
 			$device_name =  $user_row['device_name'];
+			if ($device_name == "Not Set"){
+			    $device_name = $user_row['device_location'];
+			}
 			$scale = $user_row['scale'];
 			$timestamp_offset = $user_row['timestamp_offset'];
 
