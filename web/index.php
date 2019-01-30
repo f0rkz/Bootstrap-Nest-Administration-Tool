@@ -27,7 +27,7 @@ $login = new Login();
 / for the not logged in user.
 /**********************************************************************************/
 
-if ($login->isUserLoggedIn() == false && !(isset($request['cmd']) && $request['cmd'] == 'generate_graph'))
+if ($login->isUserLoggedIn() == false && !(isset($request['cmd']) && ($request['cmd'] == 'generate_graph' || $request['cmd'] == 'graph_data')))
 {
 	if (isset($request['page']) && $request['page'] == 'register')
 	{
