@@ -262,7 +262,7 @@ if (isset($request['page']) && $request['page'] == 'profile')
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
+if (isset($request['cmd']) && ($request['cmd'] == 'generate_graph' || $request['cmd'] == 'graph_data'))
 {
 	if (defined('DEFAULT_USER') && !is_null(DEFAULT_USER))
 	{
@@ -276,7 +276,9 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 
 	if (isset($username))
 	{
-		$data_js = new Template("../includes/templates/data.js.tpl");
+		$data_js = $request['cmd'] == 'generate_graph' ?
+      new Template("../includes/templates/data.js.tpl")
+      : new Template('../includes/templates/graph-data.js.tpl');
 
 		$db_connect = DBConnect::getConnection();
 	    $devices_statement = $db_connect->prepare('
@@ -297,13 +299,88 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 			$scale = $user_row['scale'];
 			$timestamp_offset = $user_row['timestamp_offset'];
 
-		    $data_statement = $db_connect->prepare("
-		    	SELECT data.*
-		    	FROM data
-		    	WHERE data.user_id = :user_id 
-		    	AND data.device_serial_number = :device_serial_number
-		    	ORDER BY timestamp");
-		    $data_statement->execute(array('user_id' => $user_id, 'device_serial_number' => $device_serial_number));
+      $start = $request['start'];
+      if ($start && !preg_match('/^[0-9]+$/', $start)) {
+        die("Invalid start parameter: $start");
+      }
+      if ($start) floor($start /= 1000); // Convert from JS timestamp
+
+      $end = $request['end'];
+      if ($end && !preg_match('/^[0-9]+$/', $end)) {
+        die("Invalid end parameter: $end");
+      }
+      if ($end) ceil($end /= 1000); // Convert from JS timestamp
+
+      // Initial data load (and more than one year) is weekly data
+      $group_by = 'GROUP BY YEAR(FROM_UNIXTIME(data.timestamp)), WEEKOFYEAR(FROM_UNIXTIME(data.timestamp))';
+      $range_sql = '';
+
+      // There are start and end times, so we're getting ranges
+      if ($start && $end) {
+        // Find range for loading data
+        $range = $end - $start;
+        $range_sql = 'AND data.timestamp BETWEEN :start AND :end';
+
+        if ($range <= 7 * 24 * 3600) {
+          // one week range loads all data
+          $group_by = '';
+        } elseif ($range <= 32 * 24 * 3600) {
+          // one month range loads hourly data
+          $group_by = 'GROUP BY YEAR(FROM_UNIXTIME(data.timestamp)), MONTH(FROM_UNIXTIME(data.timestamp)), DAY(FROM_UNIXTIME(data.timestamp)), HOUR(FROM_UNIXTIME(data.timestamp))';
+        } elseif ($range <= 12 * 31 * 24 * 3600) {
+          // one year range loads daily data
+          $group_by = 'GROUP BY YEAR(FROM_UNIXTIME(data.timestamp)), DAYOFYEAR(FROM_UNIXTIME(data.timestamp))';
+        }
+      }
+
+
+      $sql = "(
+        SELECT data.*, data.timestamp AS union_sort
+        FROM data
+        WHERE data.user_id = :user_id 
+          AND data.device_serial_number = :device_serial_number
+          $range_sql
+        $group_by
+        ORDER BY data.timestamp ASC
+      )";
+
+      $params = array();
+      $params['user_id'] = $user_id;
+      $params['device_serial_number'] = $device_serial_number;
+
+      if (!$range_sql) {
+        // Make sure to get the first and last records on initial load to set
+        // extremes in graph
+        $sql .= "
+          UNION (
+            SELECT data.*, data.timestamp AS union_sort
+            FROM data
+            WHERE data.user_id = :user_id_2 
+              AND data.device_serial_number = :device_serial_number_2
+            ORDER BY data.timestamp DESC
+            LIMIT 1
+          )
+          UNION (
+            SELECT data.*, data.timestamp AS union_sort
+            FROM data
+            WHERE data.user_id = :user_id_3 
+              AND data.device_serial_number = :device_serial_number_3
+            ORDER BY data.timestamp ASC
+            LIMIT 1
+          ) 
+          ORDER BY union_sort";
+
+        $params['user_id_2'] = $params['user_id_3'] = $user_id;
+        $params['device_serial_number_2'] = $params['device_serial_number_3'] = $device_serial_number;
+      }
+
+      if ($range_sql) {
+        $params['start'] = $start;
+        $params['end'] = $end;
+      }
+
+      $data_statement = $db_connect->prepare($sql);
+      $data_statement->execute($params);
 
 			$data_temp = array();
 			$data_humidity = array();
@@ -322,6 +399,7 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 			$last_timestamp = null;
 			$last_heating = null;
 			$last_cooling = null;
+			$min_timestamp = null;
 
 			while ($row = $data_statement->fetch())
 			{
@@ -353,6 +431,9 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 				$cooling = $row['cooling'] ? $setpoint : "null";
 
 				$timestamp *= 1000; // convert from Unix timestamp to JavaScript time
+
+        // Save minimum timestamp
+        if (!$min_timestamp) $min_timestamp = $timestamp;
 
 				if ($last_temp === null || $last_temp != $temp)
 				{
@@ -435,6 +516,9 @@ if (isset($request['cmd']) && $request['cmd'] == 'generate_graph')
 
 			$date_offset = $timestamp_offset * -1;
 
+			$data_js->set('callback', $request['callback']);
+      $data_js->set('min_timestamp', $min_timestamp);
+      $data_js->set('max_timestamp', $last_timestamp);
 			$data_js->set('device_serial_number', $device_serial_number);
 			$data_js->set('device_name', $device_name);
 			$data_js->set('date_offset', $date_offset);
