@@ -254,6 +254,7 @@ $(function () {
             // Graph initial extremes to allow for mouse panning
             color: 'rgba(0,0,0,0)',
             enableMouseTracking: false,
+            showInLegend: false,
             dataGrouping: { enabled: false },
             data: [
                 { x: <?= $min_timestamp ?>, y: 0},
