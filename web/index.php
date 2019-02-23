@@ -171,7 +171,7 @@ if (isset($request['page']) && $request['page'] == 'profile')
 			$nest_password = $input['nest']['password'];
 			$nest_location = $input['nest']['location'];
 
-			$nest_password_encrypt = utf8_encode(encrypt($nest_password, ENCRYPTION_KEY));
+			$nest_password_encrypt = encrypt($nest_password, ENCRYPTION_KEY);
 
 			////////////// identify user's time zone
 			$geocord_json = "http://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($user_location) . "&sensor=false";

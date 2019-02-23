@@ -17,8 +17,8 @@ $timezone = "America/New_York";
 
 // Key for nest password. Since nest does not use API keys per thermostat (yet),
 // we want to encrypt the database contents for safety.
-// Set something random here. You should change this.
-define("ENCRYPTION_KEY", "4jiadg892kwentj923");
+// Use `openssl rand -hex 16` to generate a new key. You should change this.
+define("ENCRYPTION_KEY", "f36199d5166fa04a7d80bffefe62b70b");
 
 // Default username to display for front page graph
 // If you do not want a username set here, please set it NULL without "quotation marks"
