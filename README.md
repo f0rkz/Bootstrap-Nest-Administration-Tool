@@ -12,8 +12,7 @@ https://raw.githubusercontent.com/f0rkz/Bootstrap-Nest-Administration-Tool/maste
 
 Prerequisite PHP Packages
 -------------
-*	php5-json
-*	php5-mcrypt
+*	php7-json
 
 INSTALL INSTRUCTIONS
 =============

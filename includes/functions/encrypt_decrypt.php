@@ -3,18 +3,26 @@
  * Returns an encrypted & utf8-encoded
  */
 function encrypt($pure_string, $encryption_key) {
-    $iv_size = mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB);
-    $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
-    $encrypted_string = mcrypt_encrypt(MCRYPT_BLOWFISH, $encryption_key, utf8_encode($pure_string), MCRYPT_MODE_ECB, $iv);
-    return $encrypted_string;
+    if (mb_strlen($encryption_key, '8bit') !== 32) {
+        throw new Exception('Needs a 256-bit key!');
+    }
+    $iv_size = openssl_cipher_iv_length('aes-256-cbc');
+    $iv = openssl_random_pseudo_bytes($iv_size);
+    $encrypted_string = openssl_encrypt($pure_string, 'aes-256-cbc', $encryption_key, OPENSSL_RAW_DATA, $iv);
+    return base64_encode($iv . $encrypted_string);
 }
 
 /**
  * Returns decrypted original string
  */
 function decrypt($encrypted_string, $encryption_key) {
-    $iv_size = mcrypt_get_iv_size(MCRYPT_BLOWFISH, MCRYPT_MODE_ECB);
-    $iv = mcrypt_create_iv($iv_size, MCRYPT_RAND);
-    $decrypted_string = mcrypt_decrypt(MCRYPT_BLOWFISH, $encryption_key, $encrypted_string, MCRYPT_MODE_ECB, $iv);
+    if (mb_strlen($encryption_key, '8bit') !== 32) {
+        throw new Exception('Needs a 256-bit key!');
+    }
+    $encrypted_string = base64_decode($encrypted_string);
+    $iv_size = openssl_cipher_iv_length('aes-256-cbc');
+    $iv = mb_substr($encrypted_string, 0, $iv_size, '8bit');
+    $ciphertext = mb_substr($encrypted_string, $iv_size, null, '8bit');
+    $decrypted_string = openssl_decrypt($ciphertext, 'aes-256-cbc', $encryption_key, OPENSSL_RAW_DATA, $iv);
     return $decrypted_string;
 }
