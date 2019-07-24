@@ -20,6 +20,7 @@ function config(){
     // $timezone = $dark_json->timezone;
 
     $timestamp_offset = $dark_json->offset;
+    $timestamp_offset = str_replace(["-"], '', $timestamp_offset);
 
     date_default_timezone_set($timezone);
 }

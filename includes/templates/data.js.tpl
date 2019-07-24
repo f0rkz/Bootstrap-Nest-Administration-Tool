@@ -34,7 +34,7 @@ $(function () {
     Highcharts.setOptions({
         time: {
             timezone: '<?= $timezone; ?>',
-            timezoneOffset: 7 * 60
+            timezoneOffset: '<?= $timestamp_offset; ?>' * 60
         }
     });
     $('#chart_nest_stats_<?= $device_serial_number ?>').highcharts('StockChart', {

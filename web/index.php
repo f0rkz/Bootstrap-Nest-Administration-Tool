@@ -12,9 +12,30 @@ error_reporting(E_ERROR);
 
 include('../includes/common.php');
 
-$timezone = timezone();
-$timestamp = timestamp();
-$timestamp_offset = timestamp_offset();
+// $timezone = timezone();
+// $timestamp = timestamp();
+// $timestamp_offset = timestamp_offset();
+
+$date = new DateTime();
+    $timezone = $date->getTimezone()->getName();
+    // $timestamp = date('Y-m-d H:i:s');
+    $timestamp = time();
+
+    $user_lat = LATITUDE;
+    $user_long = LONGITUDE;
+    $dark_api_key = DARK_API;
+
+    $darksky_url = "https://api.darksky.net/forecast/" . urlencode($dark_api_key) . "/" . $user_lat . "," . $user_long;
+        
+    $dark_raw = file_get_contents($darksky_url);
+    $dark_json = json_decode($dark_raw);
+
+    // $timezone = $dark_json->timezone;
+
+$timestamp_offset = $dark_json->offset;
+$timestamp_offset = str_replace(["-"], '', $timestamp_offset);
+
+date_default_timezone_set($timezone);
 
 // Figure out what page to render
 $request = $_GET;
@@ -504,7 +525,7 @@ if (isset($request['cmd']) && ($request['cmd'] == 'generate_graph' || $request['
       $data_js->set('max_timestamp', $last_timestamp);
 			$data_js->set('device_serial_number', $device_serial_number);
 			$data_js->set('device_name', $device_name);
-			$data_js->set('time_offset', $timestamp_offset);
+			$data_js->set('timestamp_offset', $timestamp_offset);
 			$data_js->set('timezone', $timezone);
 			$data_js->set('data_temp', $data_temp);
 			$data_js->set('data_humidity', $data_humidity);
