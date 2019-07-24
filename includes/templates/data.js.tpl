@@ -1,5 +1,4 @@
 $(function () {
-
     /**
      * Get chart data
      */
@@ -33,8 +32,9 @@ $(function () {
     }
 
     Highcharts.setOptions({
-        global: {
-            timezoneOffset: <?= $date_offset; ?> * 60
+        time: {
+            timezone: '<?= $timezone; ?>',
+            timezoneOffset: 7 * 60
         }
     });
     $('#chart_nest_stats_<?= $device_serial_number ?>').highcharts('StockChart', {
@@ -62,6 +62,9 @@ $(function () {
         },
         xAxis: {
             type: 'datetime',
+            labels: {
+				format: '{value:%Y-%b-%e %H:%M}'
+			},
             ordinal: false,
             gridLineWidth: 1,
             minTickInterval: 1 * 3600 * 1000,

@@ -1,0 +1,1 @@
+*/5 * * * * root /bin/rm -f /tmp/nest_php_* ; /usr/bin/php /opt/nest-bootstrap/includes/scripts/collect-nest-data.php
