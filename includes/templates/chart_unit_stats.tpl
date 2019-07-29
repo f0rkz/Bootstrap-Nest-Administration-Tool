@@ -2,8 +2,9 @@
 <script>
 $(function () { 
     Highcharts.setOptions({
-        global: {
-            timezoneOffset: <?= $date_offset; ?> * 60
+		time: {
+            timezone: '<?= $timezone; ?>',
+            timezoneOffset: '<?= $time_offset; ?>' * 60
         }
     });
     $('#chart_unit_stats').highcharts('StockChart', {
@@ -19,7 +20,10 @@ $(function () {
         	enabled: false
         },
         xAxis: {
-            type: 'datetime'
+            type: 'datetime',
+			labels: {
+				format: '{value:%Y-%b-%e %H:%M}'
+			},
         },
 	    rangeSelector: {
 	    	selected: 1,

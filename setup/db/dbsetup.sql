@@ -1,6 +1,7 @@
-CREATE TABLE `data` (
+CREATE TABLE IF NOT EXISTS `data` (
     `record_id` int(11) NOT NULL AUTO_INCREMENT,
     `device_serial_number` varchar(16) COLLATE utf8_unicode_ci NOT NULL,
+    -- `timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `timestamp` int(5) NOT NULL,
     `user_id` int(11) NOT NULL,
     `heating` tinyint unsigned NOT NULL,
@@ -22,9 +23,8 @@ CREATE TABLE IF NOT EXISTS `users` (
   `user_password_hash` varchar(255) COLLATE utf8_unicode_ci NOT NULL COMMENT 'user''s password in salted and hashed format',
   `user_email` varchar(64) COLLATE utf8_unicode_ci NOT NULL COMMENT 'user''s email, unique',
   `user_location` varchar(255) COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
-  `user_location_lat` decimal(10,6) NOT NULL,
-  `user_location_long` decimal(10,6) NOT NULL,
-  `timestamp_offset` int(5) NULL,
+  `user_location_lat` decimal(10,6) NULL,
+`user_location_long` decimal(10,6) NULL,
   `nest_username` varchar(64) COLLATE utf8_unicode_ci NOT NULL DEFAULT '' COMMENT 'nest user name, unique',
   `nest_password` varchar(64)COLLATE utf8_unicode_ci NOT NULL DEFAULT '',
   `scale` varchar(10),
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   UNIQUE KEY `user_name` (`user_name`),
   UNIQUE KEY `user_email` (`user_email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='user data';
-CREATE TABLE `devices` (
+CREATE TABLE IF NOT EXISTS `devices` (
   `user_id` int(11) DEFAULT NULL,
   `device_serial_number` varchar(20) NOT NULL DEFAULT '',
   `device_location` varchar(20) DEFAULT NULL,

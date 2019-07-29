@@ -17,3 +17,4 @@ include('../includes/nest.conf.php');
 include('../includes/functions/convertKelvin.php');
 include('../includes/functions/encrypt_decrypt.php');
 include('../includes/functions/password.php');
+include('../includes/functions/datetime.php');

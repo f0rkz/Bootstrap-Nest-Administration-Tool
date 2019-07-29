@@ -1,19 +1,21 @@
 <?php
 
 // Configure these settings for your site
-define('BRAND_URL', 'http://some.site.here.com');
-define('BRAND_NAME', 'Your Awesome Site Name');
+define('BRAND_URL', 'http://demo.test.com');
+define('BRAND_NAME', 'Nest Demo Example');
 
 // Database configuration
-define('DB_HOST', 'localhost');
-define('DB_USER', 'someuser');
-define('DB_PASS', 'somepass');
-define('DB_NAME', 'somedatabase');
+define('DB_HOST', 'mariadb');
+define('DB_USER', 'nest_stats');
+define('DB_PASS', 'n3st_st4ts');
+define('DB_NAME', 'nest_stats');
 
-// Local Timezone settings
-// Make sure your timezone reflects the proper php timezone
-// You can look up your timezone format here: http://php.net/manual/en/timezones.php
-$timezone = "America/New_York";
+// DARK_SKY_COORDS
+// Register for a free API key here: https://darksky.net/dev/register
+// LAT and LONG can be found here: https://www.latlong.net/
+define('LATITUDE', '34.052235');
+define('LONGITUDE', '-118.243683');
+define('DARK_API', 'DARKSKY_API_KEY_HERE');
 
 // Key for nest password. Since nest does not use API keys per thermostat (yet),
 // we want to encrypt the database contents for safety.

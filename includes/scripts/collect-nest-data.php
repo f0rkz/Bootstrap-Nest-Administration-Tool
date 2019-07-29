@@ -2,11 +2,17 @@
 
 error_reporting(E_ERROR);
 
-include('../classes/dbconnect.php');
-include('../classes/nest.php');
-include('../nest.conf.php');
-include('../functions/convertKelvin.php');
-include('../functions/encrypt_decrypt.php');
+// include('../classes/dbconnect.php');
+// include('../classes/nest.php');
+// include('../nest.conf.php');
+// include('../functions/convertKelvin.php');
+// include('../functions/encrypt_decrypt.php');
+
+include('/opt/nest-bootstrap/includes/classes/dbconnect.php');
+include('/opt/nest-bootstrap/includes/classes/nest.php');
+include('/opt/nest-bootstrap/includes/nest.conf.php');
+include('/opt/nest-bootstrap/includes/functions/convertKelvin.php');
+include('/opt/nest-bootstrap/includes/functions/encrypt_decrypt.php');
 
 try {
   $db_connect = DBConnect::getConnection();
@@ -29,24 +35,9 @@ while ( $row = $users_statement->fetch())
 	$nest_username = $row['nest_username'];
 	$nest_password = $row['nest_password'];
 	$nest_password_decrypt = decrypt($nest_password, ENCRYPTION_KEY);
+	// $timestamp = date('Y-m-d H:i:s');
 	$timestamp = time();
 
-/*
-	$geocord_json = "http://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($user_location) . "&sensor=false";
-	$geocord_array = json_decode(file_get_contents($geocord_json));
-	$user_lat = $geocord_array->results['0']->geometry->location->lat;
-	$user_long = $geocord_array->results['0']->geometry->location->lng;
-
-
-	// Google maps api URL
-	// This is required to get the timezone offset from the current user's location
-	$google_json = "https://maps.googleapis.com/maps/api/timezone/json?location=" . $user_lat . "," . $user_long . "&timestamp=" . $timestamp;
-	$google_time = json_decode(file_get_contents($google_json));
-	$dst_offset = $google_time->dstOffset;
-	$raw_offset = $google_time->rawOffset;
-	$timestamp_offset = ( $dst_offset + $raw_offset ) / 60 / 60;
-	//$local_time = $timestamp + $dst_offset + $raw_offset;
-*/
   try {
 	$nest = new Nest($nest_username, $nest_password_decrypt);
   }

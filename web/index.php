@@ -12,6 +12,31 @@ error_reporting(E_ERROR);
 
 include('../includes/common.php');
 
+// $timezone = timezone();
+// $timestamp = timestamp();
+// $timestamp_offset = timestamp_offset();
+
+$date = new DateTime();
+    $timezone = $date->getTimezone()->getName();
+    // $timestamp = date('Y-m-d H:i:s');
+    $timestamp = time();
+
+    $user_lat = LATITUDE;
+    $user_long = LONGITUDE;
+    $dark_api_key = DARK_API;
+
+    $darksky_url = "https://api.darksky.net/forecast/" . urlencode($dark_api_key) . "/" . $user_lat . "," . $user_long;
+        
+    $dark_raw = file_get_contents($darksky_url);
+    $dark_json = json_decode($dark_raw);
+
+    // $timezone = $dark_json->timezone;
+
+$timestamp_offset = $dark_json->offset;
+$timestamp_offset = str_replace(["-"], '', $timestamp_offset);
+
+date_default_timezone_set($timezone);
+
 // Figure out what page to render
 $request = $_GET;
 $input = $_POST;
@@ -173,36 +198,17 @@ if (isset($request['page']) && $request['page'] == 'profile')
 
 			$nest_password_encrypt = encrypt($nest_password, ENCRYPTION_KEY);
 
-			////////////// identify user's time zone
-			$geocord_json = "http://maps.googleapis.com/maps/api/geocode/json?address=" . urlencode($user_location) . "&sensor=false";
-			$geocord_array = json_decode(file_get_contents($geocord_json));
-			$user_lat = $geocord_array->results['0']->geometry->location->lat;
-			$user_long = $geocord_array->results['0']->geometry->location->lng;
-
-			$timestamp = time();
-
-			// Google maps api URL
-			// This is required to get the timezone offset from the current user's location
-			$google_json = "https://maps.googleapis.com/maps/api/timezone/json?location=" . $user_lat . "," . $user_long . "&timestamp=" . $timestamp;
-			$google_time = json_decode(file_get_contents($google_json));
-			$dst_offset = $google_time->dstOffset;
-			$raw_offset = $google_time->rawOffset;
-			$timestamp_offset = ( $dst_offset + $raw_offset ) / 60 / 60;
-			//////////////
-
 			$update_statement = $db_connect->prepare("
 				UPDATE users
 				SET nest_username = :nest_username,
 				  nest_password = :nest_password,
-				  user_location = :user_location,				  
-				  timestamp_offset = :timestamp_offset
+				  user_location = :user_location				  
 				WHERE user_id = :user_id
 			");
 			$update_statement->execute(array(
 				'nest_username' => $nest_username,
 				'nest_password' => $nest_password_encrypt,
 				'user_location' => $nest_location,
-				'timestamp_offset' => $timestamp_offset,
 				'user_id' => $user_id
 			));
 
@@ -282,7 +288,7 @@ if (isset($request['cmd']) && ($request['cmd'] == 'generate_graph' || $request['
 
 		$db_connect = DBConnect::getConnection();
 	    $devices_statement = $db_connect->prepare('
-	    	SELECT devices.device_serial_number, devices.device_location, devices.device_name, users.user_id, users.scale, users.timestamp_offset
+	    	SELECT devices.device_serial_number, devices.device_location, devices.device_name, users.user_id, users.scale
 	    	FROM users, devices 
 	    	WHERE users.user_id = devices.user_id 
 	    	AND users.user_name = :user_name');
@@ -297,7 +303,6 @@ if (isset($request['cmd']) && ($request['cmd'] == 'generate_graph' || $request['
 			    $device_name = $user_row['device_location'];
 			}
 			$scale = $user_row['scale'];
-			$timestamp_offset = $user_row['timestamp_offset'];
 
       $start = $request['start'];
       if ($start && !preg_match('/^[0-9]+$/', $start)) {
@@ -404,6 +409,7 @@ if (isset($request['cmd']) && ($request['cmd'] == 'generate_graph' || $request['
 			while ($row = $data_statement->fetch())
 			{
 				$timestamp = $row['timestamp'];
+				// $timestamp = strtotime($row['timestamp']);
 				$setpoint = $row['target'];
 				$temp = $row['current'];
 				$humidity = $row['humidity'];
@@ -514,14 +520,13 @@ if (isset($request['cmd']) && ($request['cmd'] == 'generate_graph' || $request['
 			$data_heating[] .= "[$timestamp, $heating]";
 			$data_cooling[] .= "[$timestamp, $cooling]";
 
-			$date_offset = $timestamp_offset * -1;
-
 			$data_js->set('callback', $request['callback']);
       $data_js->set('min_timestamp', $min_timestamp);
       $data_js->set('max_timestamp', $last_timestamp);
 			$data_js->set('device_serial_number', $device_serial_number);
 			$data_js->set('device_name', $device_name);
-			$data_js->set('date_offset', $date_offset);
+			$data_js->set('timestamp_offset', $timestamp_offset);
+			$data_js->set('timezone', $timezone);
 			$data_js->set('data_temp', $data_temp);
 			$data_js->set('data_humidity', $data_humidity);
 			$data_js->set('data_setpoint', $data_setpoint);
